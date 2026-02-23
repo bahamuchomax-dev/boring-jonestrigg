@@ -15867,7 +15867,7 @@ export default function App() {
     <div
       className="bg-transparent shrink-0"
       style={{
-        paddingBottom: "env(safe-area-inset-bottom, 0px)",
+        paddingBottom: 0,
         paddingTop: "4px",
         paddingLeft: 0,
         paddingRight: 0,
@@ -17655,8 +17655,7 @@ export default function App() {
                       position: "fixed",
                       left: 0,
                       right: 0,
-                      bottom:
-                        "calc(env(safe-area-inset-bottom, 0px) + 72px)",
+                      bottom: "72px",
                       zIndex: 50,
                       padding: "0 16px 8px",
                     }}
