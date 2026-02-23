@@ -11596,6 +11596,7 @@ const AnnouncementCard = ({
   showToast,
   setAnnouncements,
   isLight,
+  isUnread,
 }) => {
   const [editing, setEditing] = React.useState(false);
   const [editText, setEditText] = React.useState(a.text);
@@ -11639,15 +11640,43 @@ const AnnouncementCard = ({
     <div
       className="p-5 rounded-2xl relative overflow-hidden text-left"
       style={{
-        background: isLight
+        background: isUnread
+          ? isLight
+            ? "rgba(255,255,255,0.98)"
+            : "rgba(255,255,255,0.08)"
+          : isLight
           ? "rgba(255,255,255,0.92)"
           : "rgba(255,255,255,0.05)",
-        border: isLight
+        border: isUnread
+          ? isLight
+            ? "2px solid rgba(99,102,241,0.35)"
+            : "1px solid rgba(99,102,241,0.35)"
+          : isLight
           ? "2px solid rgba(0,0,0,0.18)"
           : "1px solid rgba(255,255,255,0.1)",
-        boxShadow: isLight ? "0 2px 12px rgba(0,0,0,0.08)" : "none",
+        boxShadow: isUnread
+          ? isLight
+            ? "0 2px 16px rgba(99,102,241,0.12)"
+            : "0 0 0 1px rgba(99,102,241,0.15)"
+          : isLight
+          ? "0 2px 12px rgba(0,0,0,0.08)"
+          : "none",
       }}
     >
+      {isUnread && (
+        <span
+          style={{
+            position: "absolute",
+            top: 10,
+            right: 10,
+            width: 8,
+            height: 8,
+            borderRadius: "50%",
+            background: "#f43f5e",
+            boxShadow: "0 0 6px rgba(244,63,94,0.7)",
+          }}
+        />
+      )}
       <div
         className="absolute top-0 left-0 w-1 h-full"
         style={{ background: "linear-gradient(180deg, #6366f1, #8b5cf6)" }}
@@ -12657,7 +12686,7 @@ Rules:
       style={{
         display: "flex",
         flexDirection: "column",
-        height: "calc(100vh - 60px)",
+        height: "calc(100svh - 60px)",
         position: "relative",
       }}
       className="animate-in fade-in text-left"
@@ -12996,6 +13025,17 @@ export default function App() {
   const [history, setHistory] = useState([]);
   const [vocabList, setVocabList] = useState(DEFAULT_VOCAB);
   const [announcements, setAnnouncements] = useState([]);
+  const [readAnnouncementIds, setReadAnnouncementIds] = useState<string[]>(
+    () => {
+      try {
+        return JSON.parse(
+          localStorage.getItem("genron_readAnnouncements") || "[]"
+        );
+      } catch {
+        return [];
+      }
+    }
+  );
   const [friends, setFriends] = useState([]);
   const [leaderboard, setLeaderboard] = useState([]);
   const [reviewList, setReviewList] = useState([]);
@@ -13695,13 +13735,208 @@ export default function App() {
     }
   }, [screen, activeFriend, user]);
 
-  // PWAアイコン設定（Safari / Android ホーム画面追加用）
+  // PWAアイコン設定 — 白いフクロウをCanvasでレンダリングしてアイコン化
   useEffect(() => {
-    // ログイン画面SVGイラストと同じフクロウSVGをBase64に変換してアイコンとして設定
-    const pngUrl = "data:image/png;base64,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";
+    const SIZE = 512;
+    const canvas = document.createElement("canvas");
+    canvas.width = SIZE;
+    canvas.height = SIZE;
+    const ctx = canvas.getContext("2d");
+    const S = SIZE / 100; // viewBox 0-100 → 512px
+
+    // ── 背景（ライトグレー/白 → iOSアイコン風） ──
+    const rad = SIZE * 0.22;
+    const roundRect = () => {
+      ctx.beginPath();
+      ctx.moveTo(rad, 0);
+      ctx.lineTo(SIZE - rad, 0);
+      ctx.arcTo(SIZE, 0, SIZE, rad, rad);
+      ctx.lineTo(SIZE, SIZE - rad);
+      ctx.arcTo(SIZE, SIZE, SIZE - rad, SIZE, rad);
+      ctx.lineTo(rad, SIZE);
+      ctx.arcTo(0, SIZE, 0, SIZE - rad, rad);
+      ctx.lineTo(0, rad);
+      ctx.arcTo(0, 0, rad, 0, rad);
+      ctx.closePath();
+    };
+    roundRect();
+    const bgGrad = ctx.createLinearGradient(0, 0, SIZE, SIZE);
+    bgGrad.addColorStop(0, "#f0eef8");
+    bgGrad.addColorStop(1, "#e2ddf2");
+    ctx.fillStyle = bgGrad;
+    ctx.fill();
+
+    // ── 立体感：上部グロス ──
+    roundRect();
+    const gloss = ctx.createLinearGradient(0, 0, 0, SIZE * 0.48);
+    gloss.addColorStop(0, "rgba(255,255,255,0.72)");
+    gloss.addColorStop(1, "rgba(255,255,255,0)");
+    ctx.fillStyle = gloss;
+    ctx.fill();
+
+    ctx.save();
+    ctx.scale(S, S);
+
+    // ── 翼（左右・後ろに描く） ──
+    const wingCol = "#d0ccde";
+    const wingStr = "#bab6cc";
+    ctx.beginPath();
+    ctx.moveTo(28, 62);
+    ctx.quadraticCurveTo(16, 66, 17, 82);
+    ctx.quadraticCurveTo(26, 74, 30, 63);
+    ctx.closePath();
+    ctx.fillStyle = wingCol;
+    ctx.fill();
+    ctx.strokeStyle = wingStr;
+    ctx.lineWidth = 0.8;
+    ctx.stroke();
+    ctx.beginPath();
+    ctx.moveTo(72, 62);
+    ctx.quadraticCurveTo(84, 66, 83, 82);
+    ctx.quadraticCurveTo(74, 74, 70, 63);
+    ctx.closePath();
+    ctx.fillStyle = wingCol;
+    ctx.fill();
+    ctx.stroke();
+
+    // ── 胴体 ──
+    const bodyGrad = ctx.createRadialGradient(46, 58, 2, 50, 68, 24);
+    bodyGrad.addColorStop(0, "#ffffff");
+    bodyGrad.addColorStop(0.65, "#e8e4f0");
+    bodyGrad.addColorStop(1, "#ccc8dc");
+    ctx.beginPath();
+    ctx.ellipse(50, 68, 22, 20, 0, 0, Math.PI * 2);
+    ctx.fillStyle = bodyGrad;
+    ctx.fill();
+    ctx.strokeStyle = "#c8c4d8";
+    ctx.lineWidth = 0.8;
+    ctx.stroke();
+
+    // ── 胸の白い楕円 ──
+    ctx.beginPath();
+    ctx.ellipse(50, 70, 10, 12, 0, 0, Math.PI * 2);
+    ctx.fillStyle = "rgba(255,255,255,0.62)";
+    ctx.fill();
+
+    // ── 耳羽 ──
+    const earCol = "#ccc8d8";
+    const earStr = "#b8b4c8";
+    ctx.beginPath();
+    ctx.moveTo(32, 28);
+    ctx.quadraticCurveTo(28, 12, 38, 20);
+    ctx.quadraticCurveTo(36, 26, 33, 30);
+    ctx.closePath();
+    ctx.fillStyle = earCol;
+    ctx.fill();
+    ctx.strokeStyle = earStr;
+    ctx.lineWidth = 0.7;
+    ctx.stroke();
+    ctx.beginPath();
+    ctx.moveTo(68, 28);
+    ctx.quadraticCurveTo(72, 12, 62, 20);
+    ctx.quadraticCurveTo(64, 26, 67, 30);
+    ctx.closePath();
+    ctx.fillStyle = earCol;
+    ctx.fill();
+    ctx.stroke();
+
+    // ── 頭部 ──
+    const headGrad = ctx.createRadialGradient(44, 30, 2, 50, 38, 28);
+    headGrad.addColorStop(0, "#f8f6ff");
+    headGrad.addColorStop(0.6, "#e4e0f0");
+    headGrad.addColorStop(1, "#cac4da");
+    ctx.beginPath();
+    ctx.arc(50, 38, 26, 0, Math.PI * 2);
+    ctx.fillStyle = headGrad;
+    ctx.fill();
+    ctx.strokeStyle = "#c8c4d8";
+    ctx.lineWidth = 0.7;
+    ctx.stroke();
+
+    // ── 眼窩の白円 ──
+    ctx.beginPath();
+    ctx.arc(37, 38, 12, 0, Math.PI * 2);
+    ctx.fillStyle = "rgba(255,255,255,0.72)";
+    ctx.fill();
+    ctx.beginPath();
+    ctx.arc(63, 38, 12, 0, Math.PI * 2);
+    ctx.fillStyle = "rgba(255,255,255,0.72)";
+    ctx.fill();
+
+    // ── 目（ゴールド） ──
+    const drawEye = (ex, ey) => {
+      const eyeG = ctx.createRadialGradient(ex - 2, ey - 2, 0, ex, ey, 9.5);
+      eyeG.addColorStop(0, "#fff8c0");
+      eyeG.addColorStop(0.4, "#f0c830");
+      eyeG.addColorStop(1, "#c08010");
+      ctx.beginPath();
+      ctx.arc(ex, ey, 9.5, 0, Math.PI * 2);
+      ctx.fillStyle = eyeG;
+      ctx.fill();
+      ctx.strokeStyle = "#c9a830";
+      ctx.lineWidth = 1.0;
+      ctx.stroke();
+      ctx.beginPath();
+      ctx.arc(ex, ey, 5.2, 0, Math.PI * 2);
+      ctx.fillStyle = "#1a1000";
+      ctx.fill();
+      ctx.beginPath();
+      ctx.arc(ex + 2.2, ey - 1.8, 2.5, 0, Math.PI * 2);
+      ctx.fillStyle = "rgba(255,255,255,0.92)";
+      ctx.fill();
+      ctx.beginPath();
+      ctx.arc(ex - 1.5, ey + 2.2, 1.0, 0, Math.PI * 2);
+      ctx.fillStyle = "rgba(255,255,255,0.42)";
+      ctx.fill();
+    };
+    drawEye(37, 38);
+    drawEye(63, 38);
+
+    // ── くちばし ──
+    const beakG = ctx.createLinearGradient(44, 46, 56, 54);
+    beakG.addColorStop(0, "#e8b040");
+    beakG.addColorStop(1, "#a87020");
+    ctx.beginPath();
+    ctx.moveTo(44.5, 46);
+    ctx.quadraticCurveTo(50, 53, 55.5, 46);
+    ctx.quadraticCurveTo(52, 44, 50, 45);
+    ctx.quadraticCurveTo(48, 44, 44.5, 46);
+    ctx.closePath();
+    ctx.fillStyle = beakG;
+    ctx.fill();
+    ctx.strokeStyle = "#986010";
+    ctx.lineWidth = 0.6;
+    ctx.stroke();
+
+    // ── 頭部シャイン ──
+    const shineG = ctx.createRadialGradient(43, 26, 0, 46, 30, 13);
+    shineG.addColorStop(0, "rgba(255,255,255,0.62)");
+    shineG.addColorStop(1, "rgba(255,255,255,0)");
+    ctx.beginPath();
+    ctx.ellipse(44, 28, 11, 7, 0, 0, Math.PI * 2);
+    ctx.fillStyle = shineG;
+    ctx.fill();
+
+    ctx.restore();
+
+    // ── 底面シャドウ（立体感） ──
+    roundRect();
+    const shadow = ctx.createLinearGradient(0, SIZE * 0.72, 0, SIZE);
+    shadow.addColorStop(0, "rgba(80,60,120,0)");
+    shadow.addColorStop(1, "rgba(80,60,120,0.12)");
+    ctx.fillStyle = shadow;
+    ctx.fill();
+
+    // ── PNG化してリンクに設定 ──
+    const pngUrl = canvas.toDataURL("image/png");
+
     const setOrReplaceLink = (rel, href, sizes) => {
       let el = document.querySelector(`link[rel="${rel}"]`);
-      if (!el) { el = document.createElement("link"); el.rel = rel; document.head.appendChild(el); }
+      if (!el) {
+        el = document.createElement("link");
+        el.rel = rel;
+        document.head.appendChild(el);
+      }
       el.href = href;
       if (sizes) el.setAttribute("sizes", sizes);
     };
@@ -13713,16 +13948,32 @@ export default function App() {
       short_name: "ORITAN",
       start_url: "./",
       display: "standalone",
-      background_color: "#0f1a40",
-      theme_color: "#1a0e3a",
+      background_color: "#0d0a2e",
+      theme_color: "#1a1248",
       icons: [
-        { src: pngUrl, sizes: "512x512", type: "image/png", purpose: "any maskable" },
+        {
+          src: pngUrl,
+          sizes: "512x512",
+          type: "image/png",
+          purpose: "any maskable",
+        },
       ],
     };
-    const manifestBlob = new Blob([JSON.stringify(manifestObj)], { type: "application/json" });
+    const manifestBlob = new Blob([JSON.stringify(manifestObj)], {
+      type: "application/json",
+    });
     const manifestUrl = URL.createObjectURL(manifestBlob);
     setOrReplaceLink("manifest", manifestUrl);
   }, []);
+
+  // お知らせ一覧を開いたら自動で既読にする
+  useEffect(() => {
+    if (screen === "announcementsList" && announcements.length > 0) {
+      const ids = announcements.map((a) => a.id);
+      setReadAnnouncementIds(ids);
+      localStorage.setItem("genron_readAnnouncements", JSON.stringify(ids));
+    }
+  }, [screen, announcements]);
 
   const speak = (text) => {
     if (!window.speechSynthesis || !text) return;
@@ -14142,6 +14393,12 @@ export default function App() {
     setReviewQuizOptions(opts);
     setReviewQuizLoading(false);
   };
+
+  const markAnnouncementsRead = useCallback(() => {
+    const ids = announcements.map((a) => a.id);
+    setReadAnnouncementIds(ids);
+    localStorage.setItem("genron_readAnnouncements", JSON.stringify(ids));
+  }, [announcements]);
 
   const handleAddAnnouncement = async () => {
     if (!newAnnouncement.trim()) return;
@@ -15467,7 +15724,8 @@ export default function App() {
       setCorrectCount(nextCorrect);
       nextScore += 1;
       setScore(nextScore);
-      if (gameCategory === "英単語") speak(choice.en);
+      if (["英単語", "熟語"].includes(gameCategory || "英単語"))
+        speak(choice.en);
       setTimeout(() => {
         if (currentIndex + 1 < stageWords.length) {
           setCurrentIndex(currentIndex + 1);
@@ -15798,7 +16056,7 @@ export default function App() {
     <div
       className="bg-transparent shrink-0"
       style={{
-        paddingBottom: 0,
+        paddingBottom: "env(safe-area-inset-bottom, 20px)",
         paddingTop: "4px",
         paddingLeft: 0,
         paddingRight: 0,
@@ -15807,6 +16065,7 @@ export default function App() {
         left: 0,
         right: 0,
         zIndex: 100,
+        background: "transparent",
       }}
     >
       <div className="px-3">
@@ -16017,6 +16276,7 @@ export default function App() {
         left: 0,
         right: 0,
         bottom: 0,
+        height: "100svh",
         display: "flex",
         justifyContent: "center",
         background: theme.bg,
@@ -16321,6 +16581,7 @@ export default function App() {
           display: "flex",
           flexDirection: "column",
           height: "100%",
+          overflow: "hidden",
           background: "transparent",
           position: "relative",
           zIndex: 1,
@@ -16335,7 +16596,7 @@ export default function App() {
               flex: 1,
               overflowY: "auto",
               WebkitOverflowScrolling: "touch",
-              paddingTop: "calc(env(safe-area-inset-top, 0px) + 48px)",
+              paddingTop: "calc(env(safe-area-inset-top, 0px) + 40px)",
               paddingLeft: 24,
               paddingRight: 24,
               paddingBottom: 48,
@@ -16345,263 +16606,597 @@ export default function App() {
               @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
               .no-scrollbar::-webkit-scrollbar { display: none; }
               .no-scrollbar { scrollbar-width: none; -ms-overflow-style: none; }
-
-              .oritan-letter-wrap {
-                display: inline-flex;
-                gap: 0.04em;
-                align-items: baseline;
-              }
+              @import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&display=swap');
               .oritan-letter {
                 display: inline-block;
-                font-family: 'Georgia', 'Times New Roman', serif;
-                font-weight: 900;
-                font-size: 3.4rem;
+                font-family: 'Bebas Neue', 'Impact', 'Arial Narrow', sans-serif;
+                font-weight: 400;
+                font-size: 3.8rem;
                 line-height: 1;
-                background: linear-gradient(160deg,
-                  #fff8dc 0%,
-                  #ffe57a 18%,
-                  #e0c97f 32%,
-                  #fffbe6 48%,
-                  #c9a84c 64%,
-                  #ffe57a 80%,
-                  #e0c97f 100%
-                );
-                -webkit-background-clip: text;
-                -webkit-text-fill-color: transparent;
-                background-clip: text;
-                -webkit-text-stroke: 1px rgba(120,60,0,0.6);
-                paint-order: stroke fill;
-                filter:
-                  drop-shadow(0 0 14px rgba(255,200,40,0.7))
-                  drop-shadow(0 2px 6px rgba(80,40,0,0.6));
+                letter-spacing: 0.2em;
               }
-              .oritan-sub {
-                filter: drop-shadow(0 1px 0 rgba(30,30,30,0.6)) drop-shadow(0 -1px 0 rgba(30,30,30,0.6)) drop-shadow(1px 0 0 rgba(30,30,30,0.6)) drop-shadow(-1px 0 0 rgba(30,30,30,0.6));
-              }
-              .oritan-divider {
-                display: flex;
-                align-items: center;
-                gap: 8px;
-                justify-content: center;
-                margin: 4px 0 2px;
-              }
-              .oritan-divider-line {
-                height: 1px;
-                width: 32px;
-                background: linear-gradient(90deg, transparent, rgba(201,168,76,0.6), transparent);
-              }
-              .oritan-divider-dot {
-                width: 4px;
-                height: 4px;
-                border-radius: 50%;
-                background: rgba(201,168,76,0.8);
+              /* PWA スタンドアロン専用: セーフエリア強制適用 */
+              @media (display-mode: standalone) {
+                :root {
+                  --sab: env(safe-area-inset-bottom, 20px);
+                  --sat: env(safe-area-inset-top, 0px);
+                }
+                body {
+                  padding-bottom: env(safe-area-inset-bottom, 0px);
+                }
               }
             `}</style>
-            <div className="max-w-sm mx-auto space-y-6">
-              <div className="text-center mb-8">
-                <div className="flex justify-center mb-5">
-                  <svg
-                    width="80"
-                    height="80"
-                    viewBox="0 0 80 80"
-                    fill="none"
-                    xmlns="http://www.w3.org/2000/svg"
+            {(() => {
+              /* ログイン画面はライト/ダーク共通の変数をここで定義 */
+              const lC = isLight
+                ? "rgba(20,15,60,0.88)"
+                : "#ffffff"; /* メインテキスト */
+              const lM = isLight
+                ? "rgba(20,15,60,0.42)"
+                : "rgba(255,255,255,0.45)"; /* ミュート */
+              const lB = isLight
+                ? "rgba(255,255,255,0.82)"
+                : "rgba(255,255,255,0.07)"; /* 入力背景 */
+              const lBd = isLight
+                ? "1.5px solid rgba(20,15,60,0.14)"
+                : "1px solid rgba(255,255,255,0.14)"; /* 入力ボーダー */
+              const lCard = isLight
+                ? "rgba(255,255,255,0.72)"
+                : "rgba(255,255,255,0.055)";
+              const lCardBd = isLight
+                ? "1.5px solid rgba(20,15,60,0.12)"
+                : "1px solid rgba(255,255,255,0.11)";
+              const lCardShadow = isLight
+                ? "0 4px 32px rgba(20,15,60,0.10), inset 0 1px 0 rgba(255,255,255,0.9)"
+                : "0 4px 40px rgba(0,0,0,0.25), inset 0 1px 0 rgba(255,255,255,0.08)";
+              const lLine = isLight
+                ? "linear-gradient(90deg, transparent, rgba(20,15,60,0.15), transparent)"
+                : "linear-gradient(90deg, transparent, rgba(255,255,255,0.22), transparent)";
+              /* アイコン枠 */
+              const iconBg =
+                "linear-gradient(155deg, #f8f6ff 0%, #ece8f8 100%)";
+              const iconBd = isLight
+                ? "1.5px solid rgba(180,170,210,0.30)"
+                : "1.5px solid rgba(200,195,225,0.22)";
+              const iconShadow = isLight
+                ? "0 2px 0 rgba(255,255,255,0.95) inset, 0 -1px 0 rgba(120,100,180,0.08) inset, 0 8px 24px rgba(80,60,140,0.14), 0 1px 4px rgba(80,60,140,0.10)"
+                : "inset 0 2px 0 rgba(255,255,255,0.70), inset 0 -2px 0 rgba(120,100,180,0.16), 0 8px 28px rgba(0,0,0,0.36), 0 2px 6px rgba(0,0,0,0.20)";
+              return (
+                <div
+                  className="max-w-sm mx-auto"
+                  style={{ display: "flex", flexDirection: "column", gap: 0 }}
+                >
+                  {/* ━━ ORITANロゴエリア ━━ */}
+                  <div style={{ textAlign: "center", marginBottom: 36 }}>
+                    {/* フクロウアイコン */}
+                    <div
+                      style={{
+                        display: "flex",
+                        justifyContent: "center",
+                        marginBottom: 20,
+                      }}
+                    >
+                      <div
+                        style={{
+                          width: 80,
+                          height: 80,
+                          borderRadius: 24,
+                          background: iconBg,
+                          border: iconBd,
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "center",
+                          boxShadow: iconShadow,
+                          backdropFilter: "blur(12px)",
+                          position: "relative",
+                          overflow: "hidden",
+                        }}
+                      >
+                        {/* 立体感：内側トップグロス */}
+                        <div
+                          style={{
+                            position: "absolute",
+                            top: 0,
+                            left: 0,
+                            right: 0,
+                            height: "48%",
+                            background: isLight
+                              ? "linear-gradient(180deg, rgba(255,255,255,0.72) 0%, transparent 100%)"
+                              : "linear-gradient(180deg, rgba(255,255,255,0.16) 0%, transparent 100%)",
+                            borderRadius: "24px 24px 0 0",
+                            pointerEvents: "none",
+                            zIndex: 2,
+                          }}
+                        />
+                        {/* 立体感：底面シャドウ */}
+                        <div
+                          style={{
+                            position: "absolute",
+                            bottom: 0,
+                            left: 0,
+                            right: 0,
+                            height: "30%",
+                            background: isLight
+                              ? "linear-gradient(0deg, rgba(0,0,0,0.07) 0%, transparent 100%)"
+                              : "linear-gradient(0deg, rgba(0,0,0,0.28) 0%, transparent 100%)",
+                            pointerEvents: "none",
+                            zIndex: 2,
+                          }}
+                        />
+                        <svg
+                          width="52"
+                          height="52"
+                          viewBox="0 0 100 100"
+                          fill="none"
+                          xmlns="http://www.w3.org/2000/svg"
+                          style={{ position: "relative", zIndex: 3 }}
+                        >
+                          <defs>
+                            <radialGradient
+                              id="owlBody"
+                              cx="50%"
+                              cy="40%"
+                              r="55%"
+                            >
+                              <stop offset="0%" stopColor="#ffffff" />
+                              <stop offset="70%" stopColor="#e8e4f0" />
+                              <stop offset="100%" stopColor="#ccc8dc" />
+                            </radialGradient>
+                            <radialGradient
+                              id="owlHead"
+                              cx="50%"
+                              cy="35%"
+                              r="55%"
+                            >
+                              <stop offset="0%" stopColor="#f8f6ff" />
+                              <stop offset="65%" stopColor="#e2ddf0" />
+                              <stop offset="100%" stopColor="#c8c2dc" />
+                            </radialGradient>
+                            <radialGradient
+                              id="eyeGoldL"
+                              cx="38%"
+                              cy="35%"
+                              r="60%"
+                            >
+                              <stop offset="0%" stopColor="#fff6c0" />
+                              <stop offset="45%" stopColor="#f0c830" />
+                              <stop offset="100%" stopColor="#c08010" />
+                            </radialGradient>
+                            <radialGradient
+                              id="eyeGoldR"
+                              cx="38%"
+                              cy="35%"
+                              r="60%"
+                            >
+                              <stop offset="0%" stopColor="#fff6c0" />
+                              <stop offset="45%" stopColor="#f0c830" />
+                              <stop offset="100%" stopColor="#c08010" />
+                            </radialGradient>
+                            <radialGradient
+                              id="bodyShine"
+                              cx="40%"
+                              cy="30%"
+                              r="50%"
+                            >
+                              <stop
+                                offset="0%"
+                                stopColor="rgba(255,255,255,0.6)"
+                              />
+                              <stop
+                                offset="100%"
+                                stopColor="rgba(255,255,255,0)"
+                              />
+                            </radialGradient>
+                            <filter
+                              id="softShadow"
+                              x="-20%"
+                              y="-20%"
+                              width="140%"
+                              height="140%"
+                            >
+                              <feDropShadow
+                                dx="0"
+                                dy="2"
+                                stdDeviation="2.5"
+                                floodColor="rgba(80,60,120,0.20)"
+                              />
+                            </filter>
+                          </defs>
+
+                          {/* 胴体 */}
+                          <ellipse
+                            cx="50"
+                            cy="68"
+                            rx="22"
+                            ry="20"
+                            fill="url(#owlBody)"
+                            filter="url(#softShadow)"
+                          />
+                          {/* 翼（左） */}
+                          <path
+                            d="M28 62 Q16 66 17 82 Q26 74 30 63Z"
+                            fill="#d8d4e8"
+                            stroke="#c4bfd8"
+                            strokeWidth="0.8"
+                          />
+                          {/* 翼（右） */}
+                          <path
+                            d="M72 62 Q84 66 83 82 Q74 74 70 63Z"
+                            fill="#d8d4e8"
+                            stroke="#c4bfd8"
+                            strokeWidth="0.8"
+                          />
+                          {/* 胸のハート型白模様 */}
+                          <ellipse
+                            cx="50"
+                            cy="70"
+                            rx="10"
+                            ry="12"
+                            fill="rgba(255,255,255,0.55)"
+                          />
+                          {/* 頭部 */}
+                          <circle
+                            cx="50"
+                            cy="38"
+                            r="26"
+                            fill="url(#owlHead)"
+                            filter="url(#softShadow)"
+                          />
+                          {/* 耳羽（左） */}
+                          <path
+                            d="M32 28 Q28 12 38 20 Q36 26 33 30Z"
+                            fill="#d0ccdf"
+                            stroke="#bcb8cc"
+                            strokeWidth="0.8"
+                          />
+                          {/* 耳羽（右） */}
+                          <path
+                            d="M68 28 Q72 12 62 20 Q64 26 67 30Z"
+                            fill="#d0ccdf"
+                            stroke="#bcb8cc"
+                            strokeWidth="0.8"
+                          />
+                          {/* 顔の白い丸（眼窩） */}
+                          <circle
+                            cx="37"
+                            cy="38"
+                            r="12"
+                            fill="rgba(255,255,255,0.70)"
+                          />
+                          <circle
+                            cx="63"
+                            cy="38"
+                            r="12"
+                            fill="rgba(255,255,255,0.70)"
+                          />
+                          {/* 左目 */}
+                          <circle
+                            cx="37"
+                            cy="38"
+                            r="9.5"
+                            fill="url(#eyeGoldL)"
+                          />
+                          <circle
+                            cx="37"
+                            cy="38"
+                            r="9.5"
+                            stroke="#c9a830"
+                            strokeWidth="1.0"
+                            fill="none"
+                          />
+                          <circle cx="37" cy="38" r="5.2" fill="#1a1000" />
+                          <circle
+                            cx="39.2"
+                            cy="35.8"
+                            r="2.4"
+                            fill="white"
+                            opacity="0.92"
+                          />
+                          <circle
+                            cx="35.2"
+                            cy="40.5"
+                            r="0.9"
+                            fill="white"
+                            opacity="0.45"
+                          />
+                          {/* 右目 */}
+                          <circle
+                            cx="63"
+                            cy="38"
+                            r="9.5"
+                            fill="url(#eyeGoldR)"
+                          />
+                          <circle
+                            cx="63"
+                            cy="38"
+                            r="9.5"
+                            stroke="#c9a830"
+                            strokeWidth="1.0"
+                            fill="none"
+                          />
+                          <circle cx="63" cy="38" r="5.2" fill="#1a1000" />
+                          <circle
+                            cx="65.2"
+                            cy="35.8"
+                            r="2.4"
+                            fill="white"
+                            opacity="0.92"
+                          />
+                          <circle
+                            cx="61.2"
+                            cy="40.5"
+                            r="0.9"
+                            fill="white"
+                            opacity="0.45"
+                          />
+                          {/* くちばし */}
+                          <path
+                            d="M44.5 46 Q50 53 55.5 46 Q52 44 50 45 Q48 44 44.5 46Z"
+                            fill="#d4a040"
+                            stroke="#b88020"
+                            strokeWidth="0.6"
+                          />
+                          {/* 頭部ボディシャイン */}
+                          <ellipse
+                            cx="44"
+                            cy="28"
+                            rx="11"
+                            ry="7"
+                            fill="url(#bodyShine)"
+                            opacity="0.6"
+                          />
+                        </svg>
+                      </div>
+                    </div>
+
+                    {/* ORITAN テキスト */}
+                    <div
+                      style={{ position: "relative", display: "inline-block" }}
+                    >
+                      <h1
+                        style={{
+                          margin: 0,
+                          lineHeight: 1,
+                          position: "relative",
+                        }}
+                      >
+                        <span
+                          className="oritan-letter"
+                          style={{
+                            color: isLight
+                              ? "rgba(28,22,72,0.90)"
+                              : "rgba(255,255,255,0.94)",
+                            letterSpacing: "0.24em",
+                            textShadow: isLight
+                              ? "none"
+                              : "0 1px 0 rgba(255,255,255,0.08), 0 4px 16px rgba(0,0,0,0.45)",
+                          }}
+                        >
+                          ORITAN
+                        </span>
+                      </h1>
+                      {/* 下アクセントライン：左右に短いラインと中央ドット */}
+                      <div
+                        style={{
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "center",
+                          gap: 6,
+                          marginTop: 8,
+                        }}
+                      >
+                        <div
+                          style={{
+                            height: 1,
+                            width: 24,
+                            background: isLight
+                              ? "rgba(28,22,72,0.18)"
+                              : "rgba(255,255,255,0.18)",
+                          }}
+                        />
+                        <div
+                          style={{
+                            width: 3,
+                            height: 3,
+                            borderRadius: "50%",
+                            background: isLight
+                              ? "rgba(28,22,72,0.28)"
+                              : "rgba(255,255,255,0.28)",
+                          }}
+                        />
+                        <div
+                          style={{
+                            height: 1,
+                            width: 24,
+                            background: isLight
+                              ? "rgba(28,22,72,0.18)"
+                              : "rgba(255,255,255,0.18)",
+                          }}
+                        />
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* ━━ フォームカード ━━ */}
+                  <div
                     style={{
-                      filter: "drop-shadow(0 6px 32px rgba(60,40,180,0.5)) drop-shadow(0 0 16px rgba(201,168,76,0.25))",
+                      background: lCard,
+                      border: lCardBd,
+                      borderRadius: 24,
+                      padding: "28px 24px 24px",
+                      backdropFilter: "blur(20px)",
+                      boxShadow: lCardShadow,
+                      display: "flex",
+                      flexDirection: "column",
+                      gap: 16,
                     }}
                   >
-                    <defs>
-                      <linearGradient id="iBg" x1="0" y1="0" x2="80" y2="80" gradientUnits="userSpaceOnUse">
-                        <stop offset="0%" stopColor="#12082e" />
-                        <stop offset="100%" stopColor="#0a1628" />
-                      </linearGradient>
-                      <linearGradient id="iGold" x1="20" y1="10" x2="60" y2="70" gradientUnits="userSpaceOnUse">
-                        <stop offset="0%" stopColor="#ffe57a" />
-                        <stop offset="50%" stopColor="#c9a84c" />
-                        <stop offset="100%" stopColor="#a06010" />
-                      </linearGradient>
-                      <radialGradient id="iEyeL" cx="29" cy="32" r="8" gradientUnits="userSpaceOnUse">
-                        <stop offset="0%" stopColor="#fff8e0" />
-                        <stop offset="100%" stopColor="#f0c040" />
-                      </radialGradient>
-                      <radialGradient id="iEyeR" cx="51" cy="32" r="8" gradientUnits="userSpaceOnUse">
-                        <stop offset="0%" stopColor="#fff8e0" />
-                        <stop offset="100%" stopColor="#f0c040" />
-                      </radialGradient>
-                      <filter id="iGlow">
-                        <feGaussianBlur stdDeviation="1.5" result="blur" />
-                        <feComposite in="SourceGraphic" in2="blur" operator="over" />
-                      </filter>
-                    </defs>
-                    {/* 背景 */}
-                    <rect width="80" height="80" rx="22" fill="url(#iBg)" />
-                    {/* 内側の微妙な光 */}
-                    <rect width="80" height="80" rx="22" fill="rgba(80,50,200,0.08)" />
-                    {/* 耳羽（シンプル三角） */}
-                    <polygon points="26,26 22,12 32,22" fill="url(#iGold)" opacity="0.9" />
-                    <polygon points="54,26 58,12 48,22" fill="url(#iGold)" opacity="0.9" />
-                    {/* ボディ（シンプル楕円） */}
-                    <ellipse cx="40" cy="56" rx="17" ry="14" fill="url(#iGold)" opacity="0.12" stroke="url(#iGold)" strokeWidth="1.2" />
-                    {/* 翼ライン */}
-                    <path d="M23 52 Q16 56 17 66 Q23 61 24 53Z" fill="url(#iGold)" opacity="0.25" />
-                    <path d="M57 52 Q64 56 63 66 Q57 61 56 53Z" fill="url(#iGold)" opacity="0.25" />
-                    {/* 頭（クリーンな円） */}
-                    <circle cx="40" cy="32" r="20" fill="url(#iGold)" opacity="0.1" stroke="url(#iGold)" strokeWidth="1.4" />
-                    {/* 左目 */}
-                    <circle cx="29" cy="32" r="8" fill="url(#iEyeL)" />
-                    <circle cx="29" cy="32" r="8" stroke="url(#iGold)" strokeWidth="1.2" fill="none" />
-                    <circle cx="29" cy="32" r="4.5" fill="#0a0600" />
-                    <circle cx="30.8" cy="30.2" r="1.8" fill="white" opacity="0.9" />
-                    {/* 右目 */}
-                    <circle cx="51" cy="32" r="8" fill="url(#iEyeR)" />
-                    <circle cx="51" cy="32" r="8" stroke="url(#iGold)" strokeWidth="1.2" fill="none" />
-                    <circle cx="51" cy="32" r="4.5" fill="#0a0600" />
-                    <circle cx="52.8" cy="30.2" r="1.8" fill="white" opacity="0.9" />
-                    {/* くちばし（細くシャープ） */}
-                    <path d="M36 38 L40 44 L44 38 Z" fill="#c9a84c" opacity="0.9" />
-                    {/* 腹の縦線（フェザーライン） */}
-                    <line x1="40" y1="48" x2="40" y2="66" stroke="url(#iGold)" strokeWidth="0.8" opacity="0.3" strokeDasharray="2 2" />
-                    {/* 星（右上・小さくシャープ） */}
-                    <path d="M63 14 L64.2 17.6 L68 17.6 L65 19.8 L66.2 23.4 L63 21.2 L59.8 23.4 L61 19.8 L58 17.6 L61.8 17.6 Z" fill="#ffe57a" opacity="0.85" />
-                  </svg>
-                </div>
-                <p
-                  className="oritan-sub"
-                  style={{
-                    color: "rgba(201,168,76,0.7)",
-                    fontSize: 9,
-                    fontWeight: 700,
-                    letterSpacing: "0.45em",
-                    marginBottom: 10,
-                    textTransform: "uppercase",
-                  }}
-                >
-                  一宮駅前校オリジナル
-                </p>
-                <h1 style={{ margin: 0, lineHeight: 1 }}>
-                  <span className="oritan-letter">ORITAN</span>
-                </h1>
-                <div className="oritan-divider" style={{ margin: "10px auto 8px" }}>
-                  <div className="oritan-divider-line" />
-                  <div className="oritan-divider-dot" />
-                  <div className="oritan-divider-line" />
-                </div>
-                <p
-                  className="oritan-sub"
-                  style={{
-                    color: "rgba(201,168,76,0.75)",
-                    fontSize: 10,
-                    fontWeight: 700,
-                    letterSpacing: "0.5em",
-                    textTransform: "uppercase",
-                  }}
-                >
-                  ログイン
-                </p>
-              </div>
-              <div
-                className="rounded-2xl p-6 space-y-4"
-                style={{
-                  background: "rgba(201,168,76,0.05)",
-                  border: "1px solid rgba(201,168,76,0.2)",
-                }}
-              >
-                <div>
-                  <p className="text-[10px] font-black text-white/40 uppercase tracking-widest mb-2">
-                    Friend ID
-                  </p>
-                  <input
-                    type="text"
-                    value={loginId}
-                    onChange={(e) => {
-                      setLoginId(e.target.value.toUpperCase());
-                      setLoginError("");
+                    {/* ID入力 */}
+                    <div>
+                      <p
+                        style={{
+                          fontSize: 9,
+                          fontWeight: 800,
+                          letterSpacing: "0.18em",
+                          textTransform: "uppercase",
+                          color: lM,
+                          marginBottom: 8,
+                        }}
+                      >
+                        Friend ID
+                      </p>
+                      <input
+                        type="text"
+                        value={loginId}
+                        onChange={(e) => {
+                          setLoginId(e.target.value.toUpperCase());
+                          setLoginError("");
+                        }}
+                        onKeyDown={(e) => e.key === "Enter" && handleLogin()}
+                        placeholder="6桁のID"
+                        maxLength={6}
+                        className="w-full outline-none font-mono font-black text-xl tracking-[0.22em]"
+                        style={{
+                          background: lB,
+                          border: lBd,
+                          borderRadius: 14,
+                          padding: "14px 18px",
+                          color: lC,
+                          caretColor: isLight ? "#3d35a0" : "#e0c97f",
+                        }}
+                      />
+                    </div>
+
+                    {/* パスワード入力 */}
+                    <div>
+                      <p
+                        style={{
+                          fontSize: 9,
+                          fontWeight: 800,
+                          letterSpacing: "0.18em",
+                          textTransform: "uppercase",
+                          color: lM,
+                          marginBottom: 8,
+                        }}
+                      >
+                        Password
+                      </p>
+                      <input
+                        type="password"
+                        value={loginPassword}
+                        onChange={(e) => {
+                          setLoginPassword(e.target.value);
+                          setLoginError("");
+                        }}
+                        onKeyDown={(e) => e.key === "Enter" && handleLogin()}
+                        placeholder="パスワードを入力"
+                        className="w-full outline-none font-bold text-base"
+                        style={{
+                          background: lB,
+                          border: lBd,
+                          borderRadius: 14,
+                          padding: "14px 18px",
+                          color: lC,
+                          caretColor: isLight ? "#3d35a0" : "#e0c97f",
+                        }}
+                      />
+                    </div>
+
+                    {loginError && (
+                      <p
+                        style={{
+                          color: "#f43f5e",
+                          fontSize: 12,
+                          fontWeight: 700,
+                          marginTop: -4,
+                        }}
+                      >
+                        {loginError}
+                      </p>
+                    )}
+
+                    {/* ログインボタン */}
+                    <button
+                      onClick={handleLogin}
+                      disabled={isLoggingIn}
+                      className="w-full font-black text-sm active:opacity-80 transition-all"
+                      style={{
+                        marginTop: 4,
+                        padding: "16px 0",
+                        borderRadius: 14,
+                        background: isLoggingIn
+                          ? isLight
+                            ? "rgba(20,15,60,0.06)"
+                            : "rgba(255,255,255,0.08)"
+                          : "linear-gradient(135deg, #2a2060 0%, #1a1040 100%)",
+                        border: isLoggingIn
+                          ? isLight
+                            ? "1.5px solid rgba(20,15,60,0.10)"
+                            : "1px solid rgba(255,255,255,0.1)"
+                          : isLight
+                          ? "1.5px solid rgba(20,15,60,0.25)"
+                          : "1px solid rgba(255,255,255,0.18)",
+                        color: isLoggingIn
+                          ? isLight
+                            ? "rgba(20,15,60,0.3)"
+                            : "rgba(255,255,255,0.35)"
+                          : "#fff",
+                        letterSpacing: "0.1em",
+                        boxShadow: isLoggingIn
+                          ? "none"
+                          : isLight
+                          ? "0 4px 16px rgba(20,15,60,0.22), inset 0 1px 0 rgba(255,255,255,0.15)"
+                          : "0 4px 20px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.12)",
+                        cursor: isLoggingIn ? "not-allowed" : "pointer",
+                      }}
+                    >
+                      {isLoggingIn ? "Signing in..." : "ログイン"}
+                    </button>
+                  </div>
+
+                  {/* 新規登録 */}
+                  <button
+                    onClick={() => {
+                      setNewName("");
+                      setNewPassword("");
+                      setConfirmPassword("");
+                      setScreen("register");
                     }}
-                    onKeyDown={(e) => e.key === "Enter" && handleLogin()}
-                    placeholder="6桁のID"
-                    maxLength={6}
-                    className="w-full px-4 py-3.5 rounded-xl font-mono font-black text-lg outline-none tracking-widest"
+                    className="w-full font-bold text-sm active:opacity-70 transition-all"
                     style={{
-                      background: "rgba(255,255,255,0.08)",
-                      border: "1px solid rgba(255,255,255,0.12)",
-                      color: theme.text,
+                      marginTop: 12,
+                      padding: "14px 0",
+                      borderRadius: 14,
+                      background: "transparent",
+                      border: isLight
+                        ? "1.5px solid rgba(20,15,60,0.15)"
+                        : "1px solid rgba(255,255,255,0.12)",
+                      color: isLight
+                        ? "rgba(20,15,60,0.45)"
+                        : "rgba(255,255,255,0.45)",
+                      letterSpacing: "0.06em",
                     }}
-                  />
-                </div>
-                <div>
-                  <p className="text-[10px] font-black text-white/40 uppercase tracking-widest mb-2">
-                    パスワード
-                  </p>
-                  <input
-                    type="password"
-                    value={loginPassword}
-                    onChange={(e) => {
-                      setLoginPassword(e.target.value);
-                      setLoginError("");
-                    }}
-                    onKeyDown={(e) => e.key === "Enter" && handleLogin()}
-                    placeholder="パスワードを入力"
-                    className="w-full px-4 py-3.5 rounded-xl font-bold text-base outline-none"
+                  >
+                    新規登録
+                  </button>
+
+                  <p
                     style={{
-                      background: "rgba(255,255,255,0.08)",
-                      border: "1px solid rgba(255,255,255,0.12)",
-                      color: theme.text,
+                      textAlign: "center",
+                      color: isLight
+                        ? "rgba(20,15,60,0.18)"
+                        : "rgba(255,255,255,0.1)",
+                      fontSize: 9,
+                      fontWeight: 600,
+                      letterSpacing: "0.12em",
+                      paddingTop: 20,
                     }}
-                  />
-                </div>
-                {loginError && (
-                  <p className="text-rose-400 text-xs font-black">
-                    {loginError}
+                  >
+                    Designed &amp; Developed by miwa
                   </p>
-                )}
-              </div>
-              <button
-                onClick={handleLogin}
-                disabled={isLoggingIn}
-                className="w-full py-4 rounded-2xl font-black text-white text-base active:opacity-80 transition-all"
-                style={
-                  isLoggingIn
-                    ? {
-                        background: "rgba(201,168,76,0.25)",
-                        cursor: "not-allowed",
-                      }
-                    : {
-                        background: "linear-gradient(135deg,#b8860b,#e0c97f)",
-                        boxShadow: "0 4px 20px rgba(201,168,76,0.4)",
-                      }
-                }
-              >
-                {isLoggingIn ? "Signing in..." : "ログイン"}
-              </button>
-              <button
-                onClick={() => {
-                  setNewName("");
-                  setNewPassword("");
-                  setConfirmPassword("");
-                  setScreen("register");
-                }}
-                className="w-full py-3.5 rounded-2xl font-bold text-sm active:opacity-70 transition-all"
-                style={{
-                  background: "rgba(201,168,76,0.1)",
-                  color: "rgba(201,168,76,0.9)",
-                  border: "1px solid rgba(201,168,76,0.35)",
-                }}
-              >
-                新規登録
-              </button>
-              <p
-                style={{
-                  textAlign: "center",
-                  color: "rgba(255,255,255,0.12)",
-                  fontSize: 10,
-                  fontWeight: 600,
-                  letterSpacing: "0.1em",
-                  paddingTop: 8,
-                }}
-              >
-                Designed &amp; Developed by miwa
-              </p>
-            </div>
+                </div>
+              );
+            })()}
           </div>
         )}
 
@@ -17268,15 +17863,20 @@ export default function App() {
         )}
 
         <main
-          className="px-4"
+          className="px-4 no-scrollbar"
           style={{
             flex: 1,
-            overflowY:
-              screen === "play" || screen === "start" ? "hidden" : "scroll",
+            minHeight: 0,
+            overflowY: screen === "play" ? "hidden" : "scroll",
             overflowX: "hidden",
-            paddingTop: "12px",
-            paddingBottom: "4px",
+            paddingTop: screen === "play" ? "8px" : "12px",
+            paddingBottom:
+              screen === "play"
+                ? "0px"
+                : "calc(84px + env(safe-area-inset-bottom, 0px))",
             WebkitOverflowScrolling: "touch",
+            scrollbarWidth: "none",
+            msOverflowStyle: "none",
             display: ["register", "profileEdit", "login"].includes(screen)
               ? "none"
               : screen === "play" || screen === "start"
@@ -17294,7 +17894,10 @@ export default function App() {
               style={{ height: "100%" }}
             >
               <div className="flex items-center justify-between mb-4 shrink-0">
-                <h2 className="text-xl font-black flex items-center gap-2 text-white tracking-tight">
+                <h2
+                  className="text-xl font-black flex items-center gap-2 tracking-tight"
+                  style={{ color: isLight ? "rgba(20,10,60,0.9)" : "white" }}
+                >
                   <MessageSquare className="text-amber-500" size={28} />
                   称え場
                 </h2>
@@ -17335,7 +17938,7 @@ export default function App() {
                 className="overflow-y-auto space-y-4 pr-2 no-scrollbar"
                 style={{
                   flex: 1,
-                  paddingBottom: "130px",
+                  paddingBottom: "140px",
                   scrollbarWidth: "none",
                   msOverflowStyle: "none",
                 }}
@@ -17562,7 +18165,7 @@ export default function App() {
                       position: "fixed",
                       left: 0,
                       right: 0,
-                      bottom: "72px",
+                      bottom: "68px",
                       zIndex: 50,
                       padding: "0 16px 8px",
                     }}
@@ -17584,8 +18187,8 @@ export default function App() {
                           onKeyDown={(e) =>
                             e.key === "Enter" && handleSendMessage()
                           }
-                          className="flex-1 p-4 bg-transparent outline-none font-bold placeholder-white/30"
-                          style={{ color: theme.text }}
+                          className="flex-1 p-4 bg-transparent outline-none font-bold"
+                          style={{ color: theme.text, opacity: 1 }}
                           placeholder="メッセージを入力..."
                         />
                         <button
@@ -17656,7 +18259,10 @@ export default function App() {
                 >
                   <ChevronLeft />
                 </button>
-                <h2 className="text-2xl font-black text-white">
+                <h2
+                  className="text-2xl font-black"
+                  style={{ color: isLight ? "rgba(20,10,60,0.9)" : "white" }}
+                >
                   {activeFriend.name} とのトーク
                 </h2>
               </div>
@@ -17818,6 +18424,10 @@ export default function App() {
                       grad: ["#a78bfa", "#7c3aed"],
                       shadow: "#8b5cf6",
                       screen: "announcementsList",
+                      badge:
+                        announcements.filter(
+                          (a) => !readAnnouncementIds.includes(a.id)
+                        ).length || null,
                     },
                     {
                       label: "復習",
@@ -18447,6 +19057,18 @@ export default function App() {
                                     {app.label}
                                   </p>
                                 </div>
+                                {app.badge && (
+                                  <span
+                                    className="absolute top-2 right-2 min-w-[18px] h-[18px] rounded-full flex items-center justify-center text-[8px] font-black text-white px-0.5"
+                                    style={{
+                                      background:
+                                        "linear-gradient(135deg,#ff4757,#c0392b)",
+                                      boxShadow: "0 0 8px rgba(255,71,87,0.7)",
+                                    }}
+                                  >
+                                    {app.badge > 99 ? "99+" : app.badge}
+                                  </span>
+                                )}
                               </button>
                             );
                           })}
@@ -19294,11 +19916,53 @@ export default function App() {
                   <ChevronLeft />
                 </button>
                 <h2
-                  className="text-2xl font-black"
+                  className="text-2xl font-black flex-1"
                   style={{ color: isLight ? "rgba(20,10,60,0.9)" : "white" }}
                 >
                   お知らせ
+                  {(() => {
+                    const unread = announcements.filter(
+                      (a) => !readAnnouncementIds.includes(a.id)
+                    ).length;
+                    return unread > 0 ? (
+                      <span
+                        className="ml-2 inline-flex items-center justify-center text-white font-black rounded-full"
+                        style={{
+                          fontSize: 10,
+                          minWidth: 18,
+                          height: 18,
+                          padding: "0 5px",
+                          background: "linear-gradient(135deg,#f43f5e,#c9184a)",
+                          boxShadow: "0 2px 8px rgba(244,63,94,0.5)",
+                          verticalAlign: "middle",
+                        }}
+                      >
+                        {unread}
+                      </span>
+                    ) : null;
+                  })()}
                 </h2>
+                {announcements.some(
+                  (a) => !readAnnouncementIds.includes(a.id)
+                ) && (
+                  <button
+                    onClick={markAnnouncementsRead}
+                    className="px-3 py-1.5 rounded-xl font-black text-xs active:scale-95 transition-all"
+                    style={{
+                      background: isLight
+                        ? "rgba(0,0,0,0.06)"
+                        : "rgba(255,255,255,0.09)",
+                      border: isLight
+                        ? "1.5px solid rgba(0,0,0,0.18)"
+                        : "1px solid rgba(255,255,255,0.12)",
+                      color: isLight
+                        ? "rgba(30,20,80,0.6)"
+                        : "rgba(255,255,255,0.5)",
+                    }}
+                  >
+                    全既読
+                  </button>
+                )}
               </div>
               <div className="space-y-4">
                 {announcements.map((a) => (
@@ -19311,6 +19975,7 @@ export default function App() {
                     showToast={showToast}
                     setAnnouncements={setAnnouncements}
                     isLight={isLight}
+                    isUnread={!readAnnouncementIds.includes(a.id)}
                   />
                 ))}
               </div>
@@ -19583,7 +20248,7 @@ export default function App() {
           {screen === "play" && stageWords[currentIndex] && (
             <div
               className="animate-in fade-in flex flex-col w-full"
-              style={{ flex: 1, gap: 12, paddingBottom: 8 }}
+              style={{ flex: 1, minHeight: 0, gap: 10, paddingBottom: "76px" }}
             >
               {/* ── ヘッダー：ライフ・スコア・プログレス ── */}
               <div
@@ -19679,7 +20344,7 @@ export default function App() {
               >
                 <button
                   onClick={() => {
-                    const speakCats = ["英単語", "英熟語", "英会話"];
+                    const speakCats = ["英単語", "英熟語", "英会話", "熟語"];
                     if (speakCats.includes(gameCategory || "英単語"))
                       speak(stageWords[currentIndex].en);
                   }}
@@ -19693,18 +20358,30 @@ export default function App() {
                 </button>
                 {gameMode === "meaning" ? (
                   <div className="flex flex-col items-center gap-3">
-                    <h2 className="text-5xl font-black text-white tracking-tighter text-center">
+                    <h2
+                      className="text-5xl font-black tracking-tighter text-center"
+                      style={{
+                        color: isLight ? "rgba(20,10,60,0.9)" : "white",
+                      }}
+                    >
                       {stageWords[currentIndex].en}
                     </h2>
-                    {["英単語", "英熟語", "英会話"].includes(
+                    {["英単語", "英熟語", "英会話", "熟語"].includes(
                       gameCategory || "英単語"
                     ) && (
                       <button
                         onClick={() => speak(stageWords[currentIndex].en)}
                         className="px-3 py-1.5 rounded-xl flex items-center gap-1.5 active:scale-90 transition-all"
                         style={{
-                          background: "rgba(255,255,255,0.1)",
-                          color: "rgba(255,255,255,0.6)",
+                          background: isLight
+                            ? "rgba(0,0,0,0.06)"
+                            : "rgba(255,255,255,0.1)",
+                          color: isLight
+                            ? "rgba(30,20,80,0.55)"
+                            : "rgba(255,255,255,0.6)",
+                          border: isLight
+                            ? "1px solid rgba(0,0,0,0.12)"
+                            : "none",
                         }}
                       >
                         <Volume2 size={14} />
@@ -19713,7 +20390,14 @@ export default function App() {
                     )}
                   </div>
                 ) : (
-                  <h2 className="text-lg font-bold italic text-white/90 leading-relaxed px-4 text-center">
+                  <h2
+                    className="text-lg font-bold italic leading-relaxed px-4 text-center"
+                    style={{
+                      color: isLight
+                        ? "rgba(20,10,60,0.85)"
+                        : "rgba(255,255,255,0.9)",
+                    }}
+                  >
                     "
                     {formatSentence(
                       stageWords[currentIndex].sentence,
@@ -19726,8 +20410,13 @@ export default function App() {
 
               {/* ── 選択肢 ── */}
               <div
-                className="grid gap-2.5"
-                style={{ flex: 1, minHeight: 0, paddingBottom: 12 }}
+                style={{
+                  flex: 1,
+                  minHeight: 0,
+                  display: "grid",
+                  gridTemplateRows: `repeat(${options.length || 4}, 1fr)`,
+                  gap: 10,
+                }}
               >
                 {options.map((opt, i) => (
                   <button
@@ -19748,7 +20437,6 @@ export default function App() {
                         : "opacity-20"
                     }`}
                     style={{
-                      flex: 1,
                       minHeight: 0,
                       ...(!feedback
                         ? {
@@ -19899,7 +20587,7 @@ export default function App() {
           {screen === "result" && (
             <div
               className="flex flex-col items-center justify-center animate-in fade-in text-center"
-              style={{ minHeight: "calc(100vh - 120px)", padding: "16px 0" }}
+              style={{ minHeight: "calc(100svh - 120px)", padding: "16px 0" }}
             >
               <div
                 className="rounded-[3rem] w-full text-center flex flex-col items-center justify-center gap-5"
@@ -19966,7 +20654,10 @@ export default function App() {
           {screen === "friendsList" && (
             <div className="space-y-8 animate-in fade-in text-left">
               <div className="flex justify-between items-center px-2 text-left">
-                <h2 className="text-2xl font-black flex items-center gap-2 leading-none text-white tracking-tight">
+                <h2
+                  className="text-2xl font-black flex items-center gap-2 leading-none tracking-tight"
+                  style={{ color: isLight ? "rgba(20,10,60,0.9)" : "white" }}
+                >
                   <Users className="text-amber-400" size={28} /> フレンド
                 </h2>
                 <button
@@ -20189,7 +20880,10 @@ export default function App() {
                   >
                     {searchResult.avatar}
                   </div>
-                  <h3 className="text-3xl font-black text-white mb-6 text-center">
+                  <h3
+                    className="text-3xl font-black mb-6 text-center"
+                    style={{ color: isLight ? "rgba(20,10,60,0.9)" : "white" }}
+                  >
                     {searchResult.name}
                   </h3>
                   <button
@@ -20490,7 +21184,10 @@ export default function App() {
           {/* ランキング画面 */}
           {screen === "leaderboard" && (
             <div className="animate-in fade-in space-y-4 text-left pb-4">
-              <h2 className="text-2xl font-black tracking-tight flex items-center gap-2 leading-none text-left text-white">
+              <h2
+                className="text-2xl font-black tracking-tight flex items-center gap-2 leading-none text-left"
+                style={{ color: isLight ? "rgba(20,10,60,0.9)" : "white" }}
+              >
                 <Trophy className="text-yellow-500" size={40} /> ランキング
               </h2>
               <div
@@ -20688,7 +21385,10 @@ export default function App() {
           {screen === "admin" && (
             <div className="space-y-6 animate-in fade-in pt-4 pb-4 text-left">
               <div className="flex justify-between items-end px-2 text-left">
-                <h2 className="text-2xl font-black text-white leading-none">
+                <h2
+                  className="text-2xl font-black leading-none"
+                  style={{ color: isLight ? "rgba(20,10,60,0.9)" : "white" }}
+                >
                   先生用管理
                 </h2>
                 <button
@@ -21578,6 +22278,7 @@ export default function App() {
                       saveLocal("profile", updated);
                       if (user && fb.enabled) {
                         try {
+                          // プロフィール本体を更新
                           await setDoc(
                             doc(
                               fb.db,
@@ -21590,6 +22291,60 @@ export default function App() {
                             ),
                             updated,
                             { merge: true }
+                          );
+                          // ランキング（leaderboard）に名前を反映
+                          if (!updated.isTeacher) {
+                            await setDoc(
+                              doc(
+                                fb.db,
+                                "artifacts",
+                                fb.appId,
+                                "public",
+                                "data",
+                                "leaderboard",
+                                user.uid
+                              ),
+                              {
+                                name: updated.name,
+                                displayName: updated.displayName,
+                                avatar: updated.avatar,
+                                color: updated.color,
+                              },
+                              { merge: true }
+                            );
+                          }
+                          // 自分のフレンド全員の名簿にも名前を反映
+                          const myFriendsSnap = await getDocs(
+                            collection(
+                              fb.db,
+                              "artifacts",
+                              fb.appId,
+                              "users",
+                              user.uid,
+                              "friends"
+                            )
+                          );
+                          await Promise.allSettled(
+                            myFriendsSnap.docs.map((fd) =>
+                              setDoc(
+                                doc(
+                                  fb.db,
+                                  "artifacts",
+                                  fb.appId,
+                                  "users",
+                                  fd.id,
+                                  "friends",
+                                  user.uid
+                                ),
+                                {
+                                  name: updated.name,
+                                  displayName: updated.displayName,
+                                  avatar: updated.avatar,
+                                  color: updated.color,
+                                },
+                                { merge: true }
+                              ).catch(() => null)
+                            )
                           );
                         } catch {}
                       }
@@ -21783,6 +22538,7 @@ export default function App() {
                       saveLocal("profile", updated);
                       if (user && fb.enabled) {
                         try {
+                          // プロフィール本体を更新
                           await setDoc(
                             doc(
                               fb.db,
@@ -21795,6 +22551,60 @@ export default function App() {
                             ),
                             updated,
                             { merge: true }
+                          );
+                          // ランキング（leaderboard）にアバター・カラーを反映
+                          if (!updated.isTeacher) {
+                            await setDoc(
+                              doc(
+                                fb.db,
+                                "artifacts",
+                                fb.appId,
+                                "public",
+                                "data",
+                                "leaderboard",
+                                user.uid
+                              ),
+                              {
+                                name: updated.name,
+                                displayName: updated.displayName,
+                                avatar: updated.avatar,
+                                color: updated.color,
+                              },
+                              { merge: true }
+                            );
+                          }
+                          // 自分のフレンド全員の名簿にもアバター・カラーを反映
+                          const myFriendsSnap = await getDocs(
+                            collection(
+                              fb.db,
+                              "artifacts",
+                              fb.appId,
+                              "users",
+                              user.uid,
+                              "friends"
+                            )
+                          );
+                          await Promise.allSettled(
+                            myFriendsSnap.docs.map((fd) =>
+                              setDoc(
+                                doc(
+                                  fb.db,
+                                  "artifacts",
+                                  fb.appId,
+                                  "users",
+                                  fd.id,
+                                  "friends",
+                                  user.uid
+                                ),
+                                {
+                                  name: updated.name,
+                                  displayName: updated.displayName,
+                                  avatar: updated.avatar,
+                                  color: updated.color,
+                                },
+                                { merge: true }
+                              ).catch(() => null)
+                            )
                           );
                         } catch {}
                       }
@@ -24305,7 +25115,7 @@ export default function App() {
                     position: "relative",
                     display: "flex",
                     flexDirection: "column",
-                    height: "calc(100vh - 0px)",
+                    height: "100svh",
                     overflow: "hidden",
                   }}
                 >
@@ -27978,7 +28788,12 @@ export default function App() {
                 >
                   <ChevronLeft />
                 </button>
-                <h2 className="text-3xl font-black text-white">カスタム問題</h2>
+                <h2
+                  className="text-3xl font-black"
+                  style={{ color: isLight ? "rgba(20,10,60,0.9)" : "white" }}
+                >
+                  カスタム問題
+                </h2>
               </div>
 
               {profile?.isTeacher ? (
@@ -28440,10 +29255,15 @@ export default function App() {
         {!["login", "register", "loading"].includes(screen) && (
           <div
             style={{
+              position: "fixed",
+              bottom: "0px",
+              left: 0,
+              right: 0,
               textAlign: "center",
-              padding: "2px 0 4px",
+              padding: "2px 0 2px",
               pointerEvents: "auto",
               userSelect: "none",
+              zIndex: 99,
             }}
             onContextMenu={(e) => {
               e.preventDefault();
