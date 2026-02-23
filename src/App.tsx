@@ -13698,90 +13698,30 @@ export default function App() {
   // PWAアイコン設定（Safari / Android ホーム画面追加用）
   useEffect(() => {
     // ログイン画面SVGイラストと同じフクロウSVGをBase64に変換してアイコンとして設定
-    const svgStr = `<svg width="512" height="512" viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <defs>
-        <clipPath id="roundClip"><rect width="80" height="80" rx="22"/></clipPath>
-        <linearGradient id="iBg" x1="0" y1="0" x2="80" y2="80" gradientUnits="userSpaceOnUse">
-          <stop offset="0%" stop-color="#12082e"/>
-          <stop offset="100%" stop-color="#0a1628"/>
-        </linearGradient>
-        <linearGradient id="iGold" x1="20" y1="10" x2="60" y2="70" gradientUnits="userSpaceOnUse">
-          <stop offset="0%" stop-color="#ffe57a"/>
-          <stop offset="50%" stop-color="#c9a84c"/>
-          <stop offset="100%" stop-color="#a06010"/>
-        </linearGradient>
-        <radialGradient id="iEyeL" cx="29" cy="32" r="8" gradientUnits="userSpaceOnUse">
-          <stop offset="0%" stop-color="#fff8e0"/>
-          <stop offset="100%" stop-color="#f0c040"/>
-        </radialGradient>
-        <radialGradient id="iEyeR" cx="51" cy="32" r="8" gradientUnits="userSpaceOnUse">
-          <stop offset="0%" stop-color="#fff8e0"/>
-          <stop offset="100%" stop-color="#f0c040"/>
-        </radialGradient>
-      </defs>
-      <g clip-path="url(#roundClip)">
-      <rect width="80" height="80" fill="url(#iBg)"/>
-      <rect width="80" height="80" fill="rgba(80,50,200,0.08)"/>
-      <polygon points="26,26 22,12 32,22" fill="url(#iGold)" opacity="0.9"/>
-      <polygon points="54,26 58,12 48,22" fill="url(#iGold)" opacity="0.9"/>
-      <ellipse cx="40" cy="56" rx="17" ry="14" fill="url(#iGold)" fill-opacity="0.12" stroke="url(#iGold)" stroke-width="1.2"/>
-      <path d="M23 52 Q16 56 17 66 Q23 61 24 53Z" fill="url(#iGold)" opacity="0.25"/>
-      <path d="M57 52 Q64 56 63 66 Q57 61 56 53Z" fill="url(#iGold)" opacity="0.25"/>
-      <circle cx="40" cy="32" r="20" fill="url(#iGold)" fill-opacity="0.1" stroke="url(#iGold)" stroke-width="1.4"/>
-      <circle cx="29" cy="32" r="8" fill="url(#iEyeL)"/>
-      <circle cx="29" cy="32" r="8" stroke="url(#iGold)" stroke-width="1.2" fill="none"/>
-      <circle cx="29" cy="32" r="4.5" fill="#0a0600"/>
-      <circle cx="30.8" cy="30.2" r="1.8" fill="white" opacity="0.9"/>
-      <circle cx="51" cy="32" r="8" fill="url(#iEyeR)"/>
-      <circle cx="51" cy="32" r="8" stroke="url(#iGold)" stroke-width="1.2" fill="none"/>
-      <circle cx="51" cy="32" r="4.5" fill="#0a0600"/>
-      <circle cx="52.8" cy="30.2" r="1.8" fill="white" opacity="0.9"/>
-      <path d="M36 38 L40 44 L44 38 Z" fill="#c9a84c" opacity="0.9"/>
-      <line x1="40" y1="48" x2="40" y2="66" stroke="url(#iGold)" stroke-width="0.8" opacity="0.3" stroke-dasharray="2 2"/>
-      <path d="M63 14 L64.2 17.6 L68 17.6 L65 19.8 L66.2 23.4 L63 21.2 L59.8 23.4 L61 19.8 L58 17.6 L61.8 17.6 Z" fill="#ffe57a" opacity="0.85"/>
-      </g>
-    </svg>`;
+    const pngUrl = "data:image/png;base64,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";
     const setOrReplaceLink = (rel, href, sizes) => {
       let el = document.querySelector(`link[rel="${rel}"]`);
       if (!el) { el = document.createElement("link"); el.rel = rel; document.head.appendChild(el); }
       el.href = href;
       if (sizes) el.setAttribute("sizes", sizes);
     };
-
-    // SafariはSVGのapple-touch-iconを無視するのでCanvasでPNGに変換する
-    const svgBlob = new Blob([svgStr], { type: "image/svg+xml;charset=utf-8" });
-    const svgUrl = URL.createObjectURL(svgBlob);
-    const img = new Image();
-    img.onload = () => {
-      const canvas = document.createElement("canvas");
-      canvas.width = 512;
-      canvas.height = 512;
-      const ctx = canvas.getContext("2d");
-      ctx.drawImage(img, 0, 0, 512, 512);
-      URL.revokeObjectURL(svgUrl);
-      const pngUrl = canvas.toDataURL("image/png");
-
-      setOrReplaceLink("apple-touch-icon", pngUrl, "512x512");
-      setOrReplaceLink("apple-touch-icon-precomposed", pngUrl, "512x512");
-      setOrReplaceLink("icon", pngUrl, "512x512");
-
-      // Android用 manifest (動的生成)
-      const manifestObj = {
-        name: "ORITAN",
-        short_name: "ORITAN",
-        start_url: "./",
-        display: "standalone",
-        background_color: "#0f1a40",
-        theme_color: "#1a0e3a",
-        icons: [
-          { src: pngUrl, sizes: "512x512", type: "image/png", purpose: "any maskable" },
-        ],
-      };
-      const manifestBlob = new Blob([JSON.stringify(manifestObj)], { type: "application/json" });
-      const manifestUrl = URL.createObjectURL(manifestBlob);
-      setOrReplaceLink("manifest", manifestUrl);
+    setOrReplaceLink("apple-touch-icon", pngUrl, "512x512");
+    setOrReplaceLink("apple-touch-icon-precomposed", pngUrl, "512x512");
+    setOrReplaceLink("icon", pngUrl, "512x512");
+    const manifestObj = {
+      name: "ORITAN",
+      short_name: "ORITAN",
+      start_url: "./",
+      display: "standalone",
+      background_color: "#0f1a40",
+      theme_color: "#1a0e3a",
+      icons: [
+        { src: pngUrl, sizes: "512x512", type: "image/png", purpose: "any maskable" },
+      ],
     };
-    img.src = svgUrl;
+    const manifestBlob = new Blob([JSON.stringify(manifestObj)], { type: "application/json" });
+    const manifestUrl = URL.createObjectURL(manifestBlob);
+    setOrReplaceLink("manifest", manifestUrl);
   }, []);
 
   const speak = (text) => {
