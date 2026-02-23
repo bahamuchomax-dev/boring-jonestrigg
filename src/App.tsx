@@ -1,5 +1,3 @@
-/* eslint-disable */
-// @ts-nocheck
 import React, { useState, useEffect, useCallback, useRef } from "react";
 // pressTimerRef はクレジット長押し用タイマー管理（クラッシュ防止・Reactベストプラクティス準拠）
 import { initializeApp, getApps, getApp } from "firebase/app";
@@ -34,7 +32,7 @@ const Ic = ({
   className,
   children,
   viewBox = "0 0 24 24",
-}: any) => (
+}) => (
   <svg
     width={size}
     height={size}
@@ -4391,7 +4389,7 @@ const getFirebaseInstance = () => {
     const db = getFirestore(app);
     const auth = getAuth(app);
     return { db, auth, enabled: true, appId: "gen-ron-kai-app-v1" };
-  } catch (e: any) {
+  } catch (e) {
     // ✅ alertを出さずサイレントにオフラインモードへ（広告ブロッカー・厳格なWi-Fi対策）
     // alertを出すとFirebase初期化前にReactがクラッシュして画面真っ白になる
     console.warn("Firebase unavailable, running in offline mode:", e.message);
@@ -11615,7 +11613,7 @@ const AnnouncementCard = ({
       );
       showToast("更新しました！");
       setEditing(false);
-    } catch (e: any) {
+    } catch (e) {
       showToast("更新エラー: " + e.message, "error");
     }
     setSaving(false);
@@ -11630,7 +11628,7 @@ const AnnouncementCard = ({
         );
       setAnnouncements((prev) => prev.filter((x) => x.id !== a.id));
       showToast("削除しました");
-    } catch (e: any) {
+    } catch (e) {
       showToast("削除エラー: " + e.message, "error");
     }
   };
@@ -13274,11 +13272,11 @@ export default function App() {
                         setHistory(fbHistory);
                         saveLocal("history", fbHistory);
                       }
-                    } catch (e: any) {}
+                    } catch (e) {}
                     if (isMounted) setScreen("start");
                     return;
                   }
-                } catch (e: any) {}
+                } catch (e) {}
               }
               if (isMounted) setScreen(localProfile ? "start" : "login");
             }
@@ -13290,7 +13288,7 @@ export default function App() {
               return prev;
             });
           }, 3000);
-        } catch (e: any) {
+        } catch (e) {
           if (isMounted) setScreen(localProfile ? "start" : "login");
         }
       } else {
@@ -13386,7 +13384,7 @@ export default function App() {
           setProfile(merged);
           saveLocal("profile", merged);
         }
-      } catch (e: any) {}
+      } catch (e) {}
     };
     syncProfile();
   }, [screen, user]);
@@ -13752,11 +13750,7 @@ export default function App() {
     </svg>`;
     const setOrReplaceLink = (rel, href, sizes) => {
       let el = document.querySelector(`link[rel="${rel}"]`);
-      if (!el) {
-        el = document.createElement("link");
-        el.rel = rel;
-        document.head.appendChild(el);
-      }
+      if (!el) { el = document.createElement("link"); el.rel = rel; document.head.appendChild(el); }
       el.href = href;
       if (sizes) el.setAttribute("sizes", sizes);
     };
@@ -13787,17 +13781,10 @@ export default function App() {
         background_color: "#0f1a40",
         theme_color: "#1a0e3a",
         icons: [
-          {
-            src: pngUrl,
-            sizes: "512x512",
-            type: "image/png",
-            purpose: "any maskable",
-          },
+          { src: pngUrl, sizes: "512x512", type: "image/png", purpose: "any maskable" },
         ],
       };
-      const manifestBlob = new Blob([JSON.stringify(manifestObj)], {
-        type: "application/json",
-      });
+      const manifestBlob = new Blob([JSON.stringify(manifestObj)], { type: "application/json" });
       const manifestUrl = URL.createObjectURL(manifestBlob);
       setOrReplaceLink("manifest", manifestUrl);
     };
@@ -13985,12 +13972,12 @@ export default function App() {
             addedAt: Date.now(),
           }
         );
-      } catch (e: any) {}
+      } catch (e) {}
       alert(`${targetUser.name}さんをフレンドに追加しました！`);
       setSearchResult(null);
       setSearchId("");
       setScreen("friendsList");
-    } catch (e: any) {
+    } catch (e) {
       alert("フレンド追加に失敗しました。");
     }
   };
@@ -14024,7 +14011,7 @@ export default function App() {
             user.uid
           )
         );
-      } catch (e: any) {}
+      } catch (e) {}
       // 未読通知をstateとlocalStorageの両方からクリア
       setUnreadDm((prev) => {
         const next = { ...prev };
@@ -14095,7 +14082,7 @@ export default function App() {
         words.push({ en, ja, sentence, stage: stageNum || 1 });
       }
       setSheetPreview({ words, errors, total: lines.length - 1 });
-    } catch (e: any) {
+    } catch (e) {
       showToast(e.message || "読み込みエラー", "error");
     }
     setSheetImporting(false);
@@ -14142,7 +14129,7 @@ export default function App() {
       showToast(`${words.length}語を登録しました！`, "success");
       setSheetPreview(null);
       setSheetUrl("");
-    } catch (e: any) {
+    } catch (e) {
       showToast("登録エラー: " + e.message, "error");
     }
     setSheetImporting(false);
@@ -14244,7 +14231,7 @@ export default function App() {
       );
       setNewAnnouncement("");
       showToast("お知らせを送信しました！");
-    } catch (e: any) {
+    } catch (e) {
       showToast("送信エラー: " + e.message, "error");
     }
   };
@@ -14255,7 +14242,7 @@ export default function App() {
       await deleteDoc(
         doc(fb.db, "artifacts", fb.appId, "public", "data", "chat", messageId)
       );
-    } catch (e: any) {
+    } catch (e) {
       showToast("削除エラー", "error");
     }
   };
@@ -14294,7 +14281,7 @@ export default function App() {
             targetUid
           )
         );
-      } catch (e: any) {}
+      } catch (e) {}
       // チャットメッセージを削除
       try {
         const chatSnap = await getDocs(
@@ -14304,13 +14291,13 @@ export default function App() {
           )
         );
         await Promise.allSettled(chatSnap.docs.map((d) => deleteDoc(d.ref)));
-      } catch (e: any) {}
+      } catch (e) {}
       // パスワード一覧のstateからも即時削除
       setPasswordList((prev) =>
         prev.filter((u) => (u.uid || u.id) !== targetUid)
       );
       showToast("ユーザーを削除しました");
-    } catch (e: any) {
+    } catch (e) {
       showToast("削除エラー", "error");
     }
   };
@@ -14334,7 +14321,7 @@ export default function App() {
           collection(fb.db, "artifacts", fb.appId, "public", "data", "chat"),
           msg
         );
-      } catch (e: any) {}
+      } catch (e) {}
     }
   };
 
@@ -14359,7 +14346,7 @@ export default function App() {
           ? `${target?.name || "ユーザー"}に発言権限を付与しました`
           : `${target?.name || "ユーザー"}の発言権限を剥奪しました`
       );
-    } catch (e: any) {
+    } catch (e) {
       showToast("権限の更新に失敗しました", "error");
     }
   };
@@ -14406,7 +14393,7 @@ export default function App() {
         { merge: true }
       ).catch(() => null);
       showToast(`${targetName}さんに${amount}コイン配布しました！`);
-    } catch (e: any) {
+    } catch (e) {
       showToast("配布エラー: " + e.message, "error");
     }
   };
@@ -14496,7 +14483,7 @@ export default function App() {
           .sort((a, b) => b.timestamp - a.timestamp);
         setHistory(fbHistory);
         saveLocal("history", fbHistory);
-      } catch (e: any) {
+      } catch (e) {
         // 取得失敗時はlocalのものをそのまま使う
       }
 
@@ -14505,7 +14492,7 @@ export default function App() {
       setScreen("start");
       setLoginId("");
       setLoginPassword("");
-    } catch (e: any) {
+    } catch (e) {
       setLoginError("ログインエラー: " + e.message);
     }
     setIsLoggingIn(false);
@@ -14627,7 +14614,7 @@ export default function App() {
           collection(fb.db, "artifacts", fb.appId, "users", uid, "history")
         ).catch(() => ({ docs: [] }));
         await Promise.allSettled(histSnap.docs.map((d) => deleteDoc(d.ref)));
-      } catch (e: any) {
+      } catch (e) {
         console.error("リセットエラー:", e);
       }
     }
@@ -14695,7 +14682,7 @@ export default function App() {
       setIsAdmin(false);
       showToast("アカウントを削除しました");
       setScreen("login");
-    } catch (e: any) {
+    } catch (e) {
       showToast("削除エラー", "error");
     }
   };
@@ -14720,7 +14707,7 @@ export default function App() {
       setInviteCode(code);
       setEditingInviteCode("");
       showToast("招待コードを更新しました");
-    } catch (e: any) {
+    } catch (e) {
       showToast("保存エラー", "error");
     }
     setIsSavingInviteCode(false);
@@ -14746,7 +14733,7 @@ export default function App() {
           ? snap.data().code || DEFAULT_INVITE_CODE
           : DEFAULT_INVITE_CODE
       );
-    } catch (e: any) {
+    } catch (e) {
       setInviteCode(DEFAULT_INVITE_CODE);
     }
   };
@@ -14816,7 +14803,7 @@ export default function App() {
               timestamp: Date.now(),
             }
           );
-        } catch (e: any) {
+        } catch (e) {
           console.error("実績投稿エラー:", e);
         }
       }
@@ -15058,7 +15045,7 @@ export default function App() {
                 color: p.color,
               };
             }
-          } catch (e: any) {
+          } catch (e) {
             return null;
           }
           return null;
@@ -15069,7 +15056,7 @@ export default function App() {
           .filter(Boolean)
           .sort((a, b) => (a.name || "").localeCompare(b.name || ""))
       );
-    } catch (e: any) {
+    } catch (e) {
       showToast("取得エラー", "error");
     }
     setIsLoadingPasswords(false);
@@ -15411,7 +15398,7 @@ export default function App() {
             clearedStages: mergedCleared,
           };
         }
-      } catch (e: any) {}
+      } catch (e) {}
     }
 
     const totalGained = finalScore + (isClear ? 30 : 0);
@@ -15528,7 +15515,7 @@ export default function App() {
                 await updateDoc(wordRef, { seenBy: [...seen, myUid] });
               }
             }
-          } catch (e: any) {}
+          } catch (e) {}
         }
       }
     }
@@ -15880,8 +15867,13 @@ export default function App() {
       style={{
         paddingBottom: "env(safe-area-inset-bottom, 0px)",
         paddingTop: "4px",
-        position: "relative",
-        zIndex: 10,
+        paddingLeft: 0,
+        paddingRight: 0,
+        position: "fixed",
+        bottom: 0,
+        left: 0,
+        right: 0,
+        zIndex: 100,
       }}
     >
       <div className="px-3">
@@ -16496,250 +16488,68 @@ export default function App() {
               <div className="text-center mb-8">
                 <div className="flex justify-center mb-5">
                   <svg
-                    width="76"
-                    height="76"
-                    viewBox="0 0 76 76"
+                    width="80"
+                    height="80"
+                    viewBox="0 0 80 80"
                     fill="none"
                     xmlns="http://www.w3.org/2000/svg"
                     style={{
-                      filter:
-                        "drop-shadow(0 4px 24px rgba(80,60,200,0.45)) drop-shadow(0 0 8px rgba(201,168,76,0.3))",
+                      filter: "drop-shadow(0 6px 32px rgba(60,40,180,0.5)) drop-shadow(0 0 16px rgba(201,168,76,0.25))",
                     }}
                   >
                     <defs>
-                      <linearGradient
-                        id="iBg"
-                        x1="0"
-                        y1="0"
-                        x2="76"
-                        y2="76"
-                        gradientUnits="userSpaceOnUse"
-                      >
-                        <stop offset="0%" stopColor="#1a0e3a" />
-                        <stop offset="40%" stopColor="#0f1a40" />
-                        <stop offset="100%" stopColor="#1a0a2e" />
+                      <linearGradient id="iBg" x1="0" y1="0" x2="80" y2="80" gradientUnits="userSpaceOnUse">
+                        <stop offset="0%" stopColor="#12082e" />
+                        <stop offset="100%" stopColor="#0a1628" />
                       </linearGradient>
-                      <linearGradient
-                        id="iOwl1"
-                        x1="20"
-                        y1="14"
-                        x2="56"
-                        y2="62"
-                        gradientUnits="userSpaceOnUse"
-                      >
-                        <stop offset="0%" stopColor="#f0c060" />
-                        <stop offset="50%" stopColor="#e08020" />
-                        <stop offset="100%" stopColor="#c06010" />
+                      <linearGradient id="iGold" x1="20" y1="10" x2="60" y2="70" gradientUnits="userSpaceOnUse">
+                        <stop offset="0%" stopColor="#ffe57a" />
+                        <stop offset="50%" stopColor="#c9a84c" />
+                        <stop offset="100%" stopColor="#a06010" />
                       </linearGradient>
-                      <linearGradient
-                        id="iStar"
-                        x1="52"
-                        y1="10"
-                        x2="70"
-                        y2="30"
-                        gradientUnits="userSpaceOnUse"
-                      >
-                        <stop offset="0%" stopColor="#ffe566" />
-                        <stop offset="100%" stopColor="#ff8c00" />
-                      </linearGradient>
-                      <radialGradient
-                        id="iGlow"
-                        cx="38"
-                        cy="38"
-                        r="38"
-                        gradientUnits="userSpaceOnUse"
-                      >
-                        <stop
-                          offset="0%"
-                          stopColor="#6040d0"
-                          stopOpacity="0.25"
-                        />
-                        <stop
-                          offset="100%"
-                          stopColor="#6040d0"
-                          stopOpacity="0"
-                        />
+                      <radialGradient id="iEyeL" cx="29" cy="32" r="8" gradientUnits="userSpaceOnUse">
+                        <stop offset="0%" stopColor="#fff8e0" />
+                        <stop offset="100%" stopColor="#f0c040" />
                       </radialGradient>
+                      <radialGradient id="iEyeR" cx="51" cy="32" r="8" gradientUnits="userSpaceOnUse">
+                        <stop offset="0%" stopColor="#fff8e0" />
+                        <stop offset="100%" stopColor="#f0c040" />
+                      </radialGradient>
+                      <filter id="iGlow">
+                        <feGaussianBlur stdDeviation="1.5" result="blur" />
+                        <feComposite in="SourceGraphic" in2="blur" operator="over" />
+                      </filter>
                     </defs>
                     {/* 背景 */}
-                    <rect width="76" height="76" rx="20" fill="url(#iBg)" />
-                    <rect width="76" height="76" rx="20" fill="url(#iGlow)" />
-                    {/* 小さな星 */}
-                    <circle
-                      cx="12"
-                      cy="14"
-                      r="1.2"
-                      fill="rgba(255,220,100,0.7)"
-                    />
-                    <circle
-                      cx="64"
-                      cy="10"
-                      r="0.9"
-                      fill="rgba(200,180,255,0.6)"
-                    />
-                    <circle
-                      cx="68"
-                      cy="56"
-                      r="1.1"
-                      fill="rgba(255,200,100,0.5)"
-                    />
-                    <circle
-                      cx="8"
-                      cy="52"
-                      r="0.8"
-                      fill="rgba(180,200,255,0.5)"
-                    />
-                    <circle
-                      cx="58"
-                      cy="66"
-                      r="0.7"
-                      fill="rgba(255,180,220,0.5)"
-                    />
-                    {/* フクロウ体 */}
-                    <ellipse
-                      cx="38"
-                      cy="50"
-                      rx="18"
-                      ry="16"
-                      stroke="url(#iOwl1)"
-                      strokeWidth="2"
-                      fill="rgba(240,180,60,0.1)"
-                    />
-                    {/* フクロウ腹（白） */}
-                    <ellipse
-                      cx="38"
-                      cy="53"
-                      rx="10"
-                      ry="11"
-                      stroke="rgba(255,240,200,0.5)"
-                      strokeWidth="1.2"
-                      fill="rgba(255,240,200,0.12)"
-                    />
-                    {/* 羽模様 */}
-                    <path
-                      d="M22 52 Q38 47 54 52"
-                      stroke="rgba(240,160,40,0.4)"
-                      strokeWidth="1.2"
-                      strokeLinecap="round"
-                    />
-                    {/* 翼 */}
-                    <path
-                      d="M20 48 Q12 52 13 62 Q20 57 21 50 Z"
-                      stroke="url(#iOwl1)"
-                      strokeWidth="1.8"
-                      fill="rgba(200,130,30,0.2)"
-                    />
-                    <path
-                      d="M56 48 Q64 52 63 62 Q56 57 55 50 Z"
-                      stroke="url(#iOwl1)"
-                      strokeWidth="1.8"
-                      fill="rgba(200,130,30,0.2)"
-                    />
-                    {/* 耳羽 */}
-                    <path
-                      d="M28 24 L24 14 L32 22 Z"
-                      stroke="url(#iOwl1)"
-                      strokeWidth="1.8"
-                      fill="rgba(200,140,40,0.3)"
-                    />
-                    <path
-                      d="M48 24 L52 14 L44 22 Z"
-                      stroke="url(#iOwl1)"
-                      strokeWidth="1.8"
-                      fill="rgba(200,140,40,0.3)"
-                    />
-                    {/* 頭 */}
-                    <circle
-                      cx="38"
-                      cy="30"
-                      r="17"
-                      stroke="url(#iOwl1)"
-                      strokeWidth="2"
-                      fill="rgba(240,180,60,0.1)"
-                    />
-                    {/* 顔ディスク */}
-                    <ellipse
-                      cx="38"
-                      cy="31"
-                      rx="14"
-                      ry="13"
-                      stroke="rgba(240,200,120,0.4)"
-                      strokeWidth="1.2"
-                      fill="rgba(240,200,120,0.06)"
-                    />
-                    {/* 大きな目 */}
-                    <circle
-                      cx="30"
-                      cy="28"
-                      r="7.5"
-                      stroke="#e8a020"
-                      strokeWidth="1.8"
-                      fill="rgba(255,255,255,0.9)"
-                    />
-                    <circle
-                      cx="46"
-                      cy="28"
-                      r="7.5"
-                      stroke="#e8a020"
-                      strokeWidth="1.8"
-                      fill="rgba(255,255,255,0.9)"
-                    />
-                    <circle cx="30.5" cy="28.5" r="5" fill="#c87800" />
-                    <circle cx="46.5" cy="28.5" r="5" fill="#c87800" />
-                    <circle cx="30.5" cy="28.5" r="2.8" fill="#1a1000" />
-                    <circle cx="46.5" cy="28.5" r="2.8" fill="#1a1000" />
-                    <circle cx="32" cy="26.5" r="1.5" fill="white" />
-                    <circle cx="48" cy="26.5" r="1.5" fill="white" />
-                    {/* くちばし */}
-                    <path
-                      d="M33.5 36 L38 42 L42.5 36 Z"
-                      stroke="#d97706"
-                      strokeWidth="1.4"
-                      strokeLinejoin="round"
-                      fill="rgba(245,158,11,0.8)"
-                    />
-                    <line
-                      x1="33.5"
-                      y1="36"
-                      x2="42.5"
-                      y2="36"
-                      stroke="#b45309"
-                      strokeWidth="1"
-                    />
-                    {/* 本（右下アクセント） */}
-                    <rect
-                      x="46"
-                      y="56"
-                      width="14"
-                      height="14"
-                      rx="2.5"
-                      stroke="rgba(100,140,255,0.6)"
-                      strokeWidth="1.5"
-                      fill="rgba(60,90,200,0.2)"
-                    />
-                    <line
-                      x1="49"
-                      y1="60"
-                      x2="57"
-                      y2="60"
-                      stroke="rgba(180,200,255,0.5)"
-                      strokeWidth="1"
-                    />
-                    <line
-                      x1="49"
-                      y1="63"
-                      x2="55"
-                      y2="63"
-                      stroke="rgba(180,200,255,0.4)"
-                      strokeWidth="1"
-                    />
-                    {/* 星アクセント（右上） */}
-                    <path
-                      d="M60 18 L61.2 22 L65.5 22 L62 24.5 L63.2 28.5 L60 26 L56.8 28.5 L58 24.5 L54.5 22 L58.8 22 Z"
-                      stroke="url(#iStar)"
-                      strokeWidth="1"
-                      fill="rgba(255,200,50,0.7)"
-                    />
+                    <rect width="80" height="80" rx="22" fill="url(#iBg)" />
+                    {/* 内側の微妙な光 */}
+                    <rect width="80" height="80" rx="22" fill="rgba(80,50,200,0.08)" />
+                    {/* 耳羽（シンプル三角） */}
+                    <polygon points="26,26 22,12 32,22" fill="url(#iGold)" opacity="0.9" />
+                    <polygon points="54,26 58,12 48,22" fill="url(#iGold)" opacity="0.9" />
+                    {/* ボディ（シンプル楕円） */}
+                    <ellipse cx="40" cy="56" rx="17" ry="14" fill="url(#iGold)" opacity="0.12" stroke="url(#iGold)" strokeWidth="1.2" />
+                    {/* 翼ライン */}
+                    <path d="M23 52 Q16 56 17 66 Q23 61 24 53Z" fill="url(#iGold)" opacity="0.25" />
+                    <path d="M57 52 Q64 56 63 66 Q57 61 56 53Z" fill="url(#iGold)" opacity="0.25" />
+                    {/* 頭（クリーンな円） */}
+                    <circle cx="40" cy="32" r="20" fill="url(#iGold)" opacity="0.1" stroke="url(#iGold)" strokeWidth="1.4" />
+                    {/* 左目 */}
+                    <circle cx="29" cy="32" r="8" fill="url(#iEyeL)" />
+                    <circle cx="29" cy="32" r="8" stroke="url(#iGold)" strokeWidth="1.2" fill="none" />
+                    <circle cx="29" cy="32" r="4.5" fill="#0a0600" />
+                    <circle cx="30.8" cy="30.2" r="1.8" fill="white" opacity="0.9" />
+                    {/* 右目 */}
+                    <circle cx="51" cy="32" r="8" fill="url(#iEyeR)" />
+                    <circle cx="51" cy="32" r="8" stroke="url(#iGold)" strokeWidth="1.2" fill="none" />
+                    <circle cx="51" cy="32" r="4.5" fill="#0a0600" />
+                    <circle cx="52.8" cy="30.2" r="1.8" fill="white" opacity="0.9" />
+                    {/* くちばし（細くシャープ） */}
+                    <path d="M36 38 L40 44 L44 38 Z" fill="#c9a84c" opacity="0.9" />
+                    {/* 腹の縦線（フェザーライン） */}
+                    <line x1="40" y1="48" x2="40" y2="66" stroke="url(#iGold)" strokeWidth="0.8" opacity="0.3" strokeDasharray="2 2" />
+                    {/* 星（右上・小さくシャープ） */}
+                    <path d="M63 14 L64.2 17.6 L68 17.6 L65 19.8 L66.2 23.4 L63 21.2 L59.8 23.4 L61 19.8 L58 17.6 L61.8 17.6 Z" fill="#ffe57a" opacity="0.85" />
                   </svg>
                 </div>
                 <p
@@ -16758,16 +16568,11 @@ export default function App() {
                 <h1 style={{ margin: 0, lineHeight: 1 }}>
                   <span className="oritan-letter-wrap">
                     {"ORITAN".split("").map((ch, i) => (
-                      <span key={i} className="oritan-letter">
-                        {ch}
-                      </span>
+                      <span key={i} className="oritan-letter">{ch}</span>
                     ))}
                   </span>
                 </h1>
-                <div
-                  className="oritan-divider"
-                  style={{ margin: "10px auto 8px" }}
-                >
+                <div className="oritan-divider" style={{ margin: "10px auto 8px" }}>
                   <div className="oritan-divider-line" />
                   <div className="oritan-divider-dot" />
                   <div className="oritan-divider-line" />
@@ -17849,7 +17654,7 @@ export default function App() {
                       left: 0,
                       right: 0,
                       bottom:
-                        "calc(max(env(safe-area-inset-bottom, 0px), 60px) + 80px)",
+                        "calc(env(safe-area-inset-bottom, 0px) + 72px)",
                       zIndex: 50,
                       padding: "0 16px 8px",
                     }}
@@ -22500,7 +22305,7 @@ export default function App() {
                       ),
                       wordData
                     );
-                  } catch (e: any) {
+                  } catch (e) {
                     setFactoryError("保存に失敗しました");
                     setFactoryAdding(false);
                     return;
@@ -26752,7 +26557,7 @@ export default function App() {
                         item.id
                       )
                     );
-                  } catch (e: any) {}
+                  } catch (e) {}
                 }
                 // Firestoreのリスナー通知が完了するまで待ってからセットを解放
                 setTimeout(() => {
@@ -27476,7 +27281,7 @@ export default function App() {
                           rid
                         )
                       );
-                    } catch (e: any) {}
+                    } catch (e) {}
                     setTimeout(() => {
                       deletingReviewIds.current.delete(rid);
                     }, 3000);
