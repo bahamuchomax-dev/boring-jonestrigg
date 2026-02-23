@@ -13698,57 +13698,45 @@ export default function App() {
   // PWAアイコン設定（Safari / Android ホーム画面追加用）
   useEffect(() => {
     // ログイン画面SVGイラストと同じフクロウSVGをBase64に変換してアイコンとして設定
-    const svgStr = `<svg width="512" height="512" viewBox="0 0 512 512" fill="none" xmlns="http://www.w3.org/2000/svg">
+    const svgStr = `<svg width="512" height="512" viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg">
       <defs>
-        <linearGradient id="bg" x1="0" y1="0" x2="512" y2="512" gradientUnits="userSpaceOnUse">
-          <stop offset="0%" stop-color="#1a0e3a"/>
-          <stop offset="40%" stop-color="#0f1a40"/>
-          <stop offset="100%" stop-color="#1a0a2e"/>
+        <linearGradient id="iBg" x1="0" y1="0" x2="80" y2="80" gradientUnits="userSpaceOnUse">
+          <stop offset="0%" stop-color="#12082e"/>
+          <stop offset="100%" stop-color="#0a1628"/>
         </linearGradient>
-        <linearGradient id="owl" x1="135" y1="94" x2="377" y2="418" gradientUnits="userSpaceOnUse">
-          <stop offset="0%" stop-color="#f0c060"/>
-          <stop offset="50%" stop-color="#e08020"/>
-          <stop offset="100%" stop-color="#c06010"/>
+        <linearGradient id="iGold" x1="20" y1="10" x2="60" y2="70" gradientUnits="userSpaceOnUse">
+          <stop offset="0%" stop-color="#ffe57a"/>
+          <stop offset="50%" stop-color="#c9a84c"/>
+          <stop offset="100%" stop-color="#a06010"/>
         </linearGradient>
-        <linearGradient id="star" x1="350" y1="67" x2="471" y2="202" gradientUnits="userSpaceOnUse">
-          <stop offset="0%" stop-color="#ffe566"/>
-          <stop offset="100%" stop-color="#ff8c00"/>
-        </linearGradient>
-        <radialGradient id="glow" cx="256" cy="256" r="256" gradientUnits="userSpaceOnUse">
-          <stop offset="0%" stop-color="#6040d0" stop-opacity="0.3"/>
-          <stop offset="100%" stop-color="#6040d0" stop-opacity="0"/>
+        <radialGradient id="iEyeL" cx="29" cy="32" r="8" gradientUnits="userSpaceOnUse">
+          <stop offset="0%" stop-color="#fff8e0"/>
+          <stop offset="100%" stop-color="#f0c040"/>
+        </radialGradient>
+        <radialGradient id="iEyeR" cx="51" cy="32" r="8" gradientUnits="userSpaceOnUse">
+          <stop offset="0%" stop-color="#fff8e0"/>
+          <stop offset="100%" stop-color="#f0c040"/>
         </radialGradient>
       </defs>
-      <rect width="512" height="512" rx="112" fill="url(#bg)"/>
-      <rect width="512" height="512" rx="112" fill="url(#glow)"/>
-      <circle cx="81" cy="94" r="8" fill="rgba(255,220,100,0.7)"/>
-      <circle cx="431" cy="67" r="6" fill="rgba(200,180,255,0.6)"/>
-      <circle cx="458" cy="377" r="7" fill="rgba(255,200,100,0.5)"/>
-      <circle cx="54" cy="350" r="5" fill="rgba(180,200,255,0.5)"/>
-      <circle cx="391" cy="445" r="5" fill="rgba(255,180,220,0.5)"/>
-      <ellipse cx="256" cy="337" rx="121" ry="108" stroke="url(#owl)" stroke-width="13" fill="rgba(240,180,60,0.1)"/>
-      <ellipse cx="256" cy="357" rx="67" ry="74" stroke="rgba(255,240,200,0.5)" stroke-width="8" fill="rgba(255,240,200,0.12)"/>
-      <path d="M148 350 Q256 317 364 350" stroke="rgba(240,160,40,0.4)" stroke-width="8" stroke-linecap="round"/>
-      <path d="M135 323 Q81 350 88 418 Q135 384 142 337 Z" stroke="url(#owl)" stroke-width="12" fill="rgba(200,130,30,0.2)"/>
-      <path d="M377 323 Q431 350 424 418 Q377 384 370 337 Z" stroke="url(#owl)" stroke-width="12" fill="rgba(200,130,30,0.2)"/>
-      <path d="M189 162 L162 94 L216 148 Z" stroke="url(#owl)" stroke-width="12" fill="rgba(200,140,40,0.3)"/>
-      <path d="M323 162 L350 94 L296 148 Z" stroke="url(#owl)" stroke-width="12" fill="rgba(200,140,40,0.3)"/>
-      <circle cx="256" cy="202" r="114" stroke="url(#owl)" stroke-width="13" fill="rgba(240,180,60,0.1)"/>
-      <ellipse cx="256" cy="209" rx="94" ry="88" stroke="rgba(240,200,120,0.4)" stroke-width="8" fill="rgba(240,200,120,0.06)"/>
-      <circle cx="202" cy="189" r="50" stroke="#e8a020" stroke-width="12" fill="rgba(255,255,255,0.9)"/>
-      <circle cx="310" cy="189" r="50" stroke="#e8a020" stroke-width="12" fill="rgba(255,255,255,0.9)"/>
-      <circle cx="205" cy="192" r="34" fill="#c87800"/>
-      <circle cx="313" cy="192" r="34" fill="#c87800"/>
-      <circle cx="205" cy="192" r="19" fill="#1a1000"/>
-      <circle cx="313" cy="192" r="19" fill="#1a1000"/>
-      <circle cx="215" cy="179" r="10" fill="white"/>
-      <circle cx="323" cy="179" r="10" fill="white"/>
-      <path d="M226 243 L256 284 L286 243 Z" stroke="#d97706" stroke-width="9" stroke-linejoin="round" fill="rgba(245,158,11,0.8)"/>
-      <line x1="226" y1="243" x2="286" y2="243" stroke="#b45309" stroke-width="7"/>
-      <rect x="310" y="377" width="94" height="94" rx="17" stroke="rgba(100,140,255,0.6)" stroke-width="10" fill="rgba(60,90,200,0.2)"/>
-      <line x1="330" y1="404" x2="384" y2="404" stroke="rgba(180,200,255,0.5)" stroke-width="7"/>
-      <line x1="330" y1="424" x2="371" y2="424" stroke="rgba(180,200,255,0.4)" stroke-width="7"/>
-      <path d="M404 121 L412 148 L440 148 L418 165 L426 192 L404 175 L382 192 L390 165 L368 148 L396 148 Z" stroke="url(#star)" stroke-width="7" fill="rgba(255,200,50,0.7)"/>
+      <rect width="80" height="80" rx="22" fill="url(#iBg)"/>
+      <rect width="80" height="80" rx="22" fill="rgba(80,50,200,0.08)"/>
+      <polygon points="26,26 22,12 32,22" fill="url(#iGold)" opacity="0.9"/>
+      <polygon points="54,26 58,12 48,22" fill="url(#iGold)" opacity="0.9"/>
+      <ellipse cx="40" cy="56" rx="17" ry="14" fill="url(#iGold)" fill-opacity="0.12" stroke="url(#iGold)" stroke-width="1.2"/>
+      <path d="M23 52 Q16 56 17 66 Q23 61 24 53Z" fill="url(#iGold)" opacity="0.25"/>
+      <path d="M57 52 Q64 56 63 66 Q57 61 56 53Z" fill="url(#iGold)" opacity="0.25"/>
+      <circle cx="40" cy="32" r="20" fill="url(#iGold)" fill-opacity="0.1" stroke="url(#iGold)" stroke-width="1.4"/>
+      <circle cx="29" cy="32" r="8" fill="url(#iEyeL)"/>
+      <circle cx="29" cy="32" r="8" stroke="url(#iGold)" stroke-width="1.2" fill="none"/>
+      <circle cx="29" cy="32" r="4.5" fill="#0a0600"/>
+      <circle cx="30.8" cy="30.2" r="1.8" fill="white" opacity="0.9"/>
+      <circle cx="51" cy="32" r="8" fill="url(#iEyeR)"/>
+      <circle cx="51" cy="32" r="8" stroke="url(#iGold)" stroke-width="1.2" fill="none"/>
+      <circle cx="51" cy="32" r="4.5" fill="#0a0600"/>
+      <circle cx="52.8" cy="30.2" r="1.8" fill="white" opacity="0.9"/>
+      <path d="M36 38 L40 44 L44 38 Z" fill="#c9a84c" opacity="0.9"/>
+      <line x1="40" y1="48" x2="40" y2="66" stroke="url(#iGold)" stroke-width="0.8" opacity="0.3" stroke-dasharray="2 2"/>
+      <path d="M63 14 L64.2 17.6 L68 17.6 L65 19.8 L66.2 23.4 L63 21.2 L59.8 23.4 L61 19.8 L58 17.6 L61.8 17.6 Z" fill="#ffe57a" opacity="0.85"/>
     </svg>`;
     const setOrReplaceLink = (rel, href, sizes) => {
       let el = document.querySelector(`link[rel="${rel}"]`);
@@ -16415,18 +16403,6 @@ export default function App() {
               .no-scrollbar::-webkit-scrollbar { display: none; }
               .no-scrollbar { scrollbar-width: none; -ms-overflow-style: none; }
 
-              @keyframes oritan-float {
-                0%, 100% { transform: translateY(0px); }
-                50% { transform: translateY(-5px); }
-              }
-              @keyframes oritan-shimmer {
-                0% { background-position: -200% center; }
-                100% { background-position: 200% center; }
-              }
-              @keyframes oritan-appear {
-                0% { opacity: 0; transform: translateY(18px) scale(0.8); filter: blur(4px); }
-                100% { opacity: 1; transform: translateY(0) scale(1); filter: blur(0); }
-              }
               .oritan-letter-wrap {
                 display: inline-flex;
                 gap: 0.04em;
@@ -16447,23 +16423,15 @@ export default function App() {
                   #ffe57a 80%,
                   #e0c97f 100%
                 );
-                background-size: 200% auto;
                 -webkit-background-clip: text;
                 -webkit-text-fill-color: transparent;
                 background-clip: text;
                 -webkit-text-stroke: 1px rgba(120,60,0,0.6);
                 paint-order: stroke fill;
-                animation: oritan-appear 0.55s cubic-bezier(0.22,1,0.36,1) both, oritan-float 3.2s ease-in-out infinite, oritan-shimmer 4s linear infinite;
                 filter:
                   drop-shadow(0 0 14px rgba(255,200,40,0.7))
                   drop-shadow(0 2px 6px rgba(80,40,0,0.6));
               }
-              .oritan-letter:nth-child(1) { animation-delay: 0.05s, 0.6s, 0s; }
-              .oritan-letter:nth-child(2) { animation-delay: 0.12s, 0.9s, 0.5s; }
-              .oritan-letter:nth-child(3) { animation-delay: 0.19s, 1.2s, 1.0s; }
-              .oritan-letter:nth-child(4) { animation-delay: 0.26s, 0.7s, 1.5s; }
-              .oritan-letter:nth-child(5) { animation-delay: 0.33s, 1.0s, 2.0s; }
-              .oritan-letter:nth-child(6) { animation-delay: 0.40s, 0.8s, 2.5s; }
               .oritan-sub {
                 filter: drop-shadow(0 1px 0 rgba(30,30,30,0.6)) drop-shadow(0 -1px 0 rgba(30,30,30,0.6)) drop-shadow(1px 0 0 rgba(30,30,30,0.6)) drop-shadow(-1px 0 0 rgba(30,30,30,0.6));
               }
@@ -16568,11 +16536,7 @@ export default function App() {
                   一宮駅前校オリジナル
                 </p>
                 <h1 style={{ margin: 0, lineHeight: 1 }}>
-                  <span className="oritan-letter-wrap">
-                    {"ORITAN".split("").map((ch, i) => (
-                      <span key={i} className="oritan-letter">{ch}</span>
-                    ))}
-                  </span>
+                  <span className="oritan-letter">ORITAN</span>
                 </h1>
                 <div className="oritan-divider" style={{ margin: "10px auto 8px" }}>
                   <div className="oritan-divider-line" />
