@@ -17428,7 +17428,7 @@ export default function App() {
                 className="overflow-y-auto space-y-4 pr-2 no-scrollbar"
                 style={{
                   flex: 1,
-                  paddingBottom: "160px",
+                  paddingBottom: "130px",
                   scrollbarWidth: "none",
                   msOverflowStyle: "none",
                 }}
