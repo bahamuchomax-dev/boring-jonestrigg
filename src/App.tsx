@@ -17870,10 +17870,7 @@ export default function App() {
             overflowY: screen === "play" ? "hidden" : "scroll",
             overflowX: "hidden",
             paddingTop: screen === "play" ? "8px" : "12px",
-            paddingBottom:
-              screen === "play"
-                ? "0px"
-                : "calc(84px + env(safe-area-inset-bottom, 0px))",
+            paddingBottom: screen === "play" ? "0px" : "calc(84px + env(safe-area-inset-bottom, 0px))",
             WebkitOverflowScrolling: "touch",
             scrollbarWidth: "none",
             msOverflowStyle: "none",
