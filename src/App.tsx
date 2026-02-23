@@ -13700,6 +13700,7 @@ export default function App() {
     // ログイン画面SVGイラストと同じフクロウSVGをBase64に変換してアイコンとして設定
     const svgStr = `<svg width="512" height="512" viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg">
       <defs>
+        <clipPath id="roundClip"><rect width="80" height="80" rx="22"/></clipPath>
         <linearGradient id="iBg" x1="0" y1="0" x2="80" y2="80" gradientUnits="userSpaceOnUse">
           <stop offset="0%" stop-color="#12082e"/>
           <stop offset="100%" stop-color="#0a1628"/>
@@ -13718,8 +13719,9 @@ export default function App() {
           <stop offset="100%" stop-color="#f0c040"/>
         </radialGradient>
       </defs>
-      <rect width="80" height="80" rx="22" fill="url(#iBg)"/>
-      <rect width="80" height="80" rx="22" fill="rgba(80,50,200,0.08)"/>
+      <g clip-path="url(#roundClip)">
+      <rect width="80" height="80" fill="url(#iBg)"/>
+      <rect width="80" height="80" fill="rgba(80,50,200,0.08)"/>
       <polygon points="26,26 22,12 32,22" fill="url(#iGold)" opacity="0.9"/>
       <polygon points="54,26 58,12 48,22" fill="url(#iGold)" opacity="0.9"/>
       <ellipse cx="40" cy="56" rx="17" ry="14" fill="url(#iGold)" fill-opacity="0.12" stroke="url(#iGold)" stroke-width="1.2"/>
@@ -13737,6 +13739,7 @@ export default function App() {
       <path d="M36 38 L40 44 L44 38 Z" fill="#c9a84c" opacity="0.9"/>
       <line x1="40" y1="48" x2="40" y2="66" stroke="url(#iGold)" stroke-width="0.8" opacity="0.3" stroke-dasharray="2 2"/>
       <path d="M63 14 L64.2 17.6 L68 17.6 L65 19.8 L66.2 23.4 L63 21.2 L59.8 23.4 L61 19.8 L58 17.6 L61.8 17.6 Z" fill="#ffe57a" opacity="0.85"/>
+      </g>
     </svg>`;
     const setOrReplaceLink = (rel, href, sizes) => {
       let el = document.querySelector(`link[rel="${rel}"]`);
