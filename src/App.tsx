@@ -15192,6 +15192,8 @@ export default function App() {
   }, [screen]);
   // 新規登録直後フラグ: syncProfile の誤検知防止
   const justRegisteredRef = React.useRef(false);
+  // syncProfile の連続呼び出し防止（60秒クールダウン）
+  const lastSyncRef = React.useRef(0);
 
   const activeFriendRef = React.useRef(activeFriend);
   useEffect(() => {
@@ -15203,6 +15205,9 @@ export default function App() {
     if (!user?.uid || !fb.enabled || !["start", "stageMap"].includes(screen))
       return;
     const syncProfile = async () => {
+      const now = Date.now();
+      if (now - lastSyncRef.current < 60_000) return;
+      lastSyncRef.current = now;
       try {
         const snap = await getDoc(
           doc(
@@ -15333,7 +15338,11 @@ export default function App() {
     );
 
     const unsubL = onSnapshot(
-      collection(fb.db, "artifacts", fb.appId, "public", "data", "leaderboard"),
+      query(
+        collection(fb.db, "artifacts", fb.appId, "public", "data", "leaderboard"),
+        orderBy("score", "desc"),
+        limit(50)
+      ),
       (s) => {
         // ★ 重複排除処理（同じshortIdを持つものを除外）
         const uniqueMap = new Map();
@@ -15366,22 +15375,13 @@ export default function App() {
     );
 
     // 先生の名前変更も称え場・ランキングに反映するためteacherIndexを監視
-    const unsubTI = onSnapshot(
-      collection(
-        fb.db,
-        "artifacts",
-        fb.appId,
-        "public",
-        "data",
-        "teacherIndex"
-      ),
-      (s) => {
-        // 先生リストをstateに保存（admin画面の先生管理用）
-        setTeacherList(
-          s.docs.map((d) => ({ id: d.id, uid: d.id, ...d.data() }))
+    // teacherIndexにnameがない先生はprofileから名前を補完（起動時1回のみ実行）
+    const fixMissingTeacherNames = async () => {
+      try {
+        const snap = await getDocs(
+          collection(fb.db, "artifacts", fb.appId, "public", "data", "teacherIndex")
         );
-        // teacherIndexにnameがない先生はprofileから名前を補完
-        s.docs.forEach(async (d) => {
+        for (const d of snap.docs) {
           if (!d.data().name && fb.db) {
             try {
               const pSnap = await getDoc(
@@ -15397,7 +15397,25 @@ export default function App() {
               }
             } catch (e) {}
           }
-        });
+        }
+      } catch (e) {}
+    };
+    fixMissingTeacherNames();
+
+    const unsubTI = onSnapshot(
+      collection(
+        fb.db,
+        "artifacts",
+        fb.appId,
+        "public",
+        "data",
+        "teacherIndex"
+      ),
+      (s) => {
+        // 先生リストをstateに保存（admin画面の先生管理用）
+        setTeacherList(
+          s.docs.map((d) => ({ id: d.id, uid: d.id, ...d.data() }))
+        );
         setAllUsersMap((prev) => {
           const next = { ...prev };
           s.docs.forEach((d) => {
