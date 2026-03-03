@@ -1,9 +1,7 @@
 /* eslint-disable */
 // @ts-nocheck
 import React from "react";
-import { initializeApp, getApps, getApp } from "firebase/app";
-import { getAuth } from "firebase/auth";
-import { getFirestore } from "firebase/firestore";
+import { db, auth } from "./firebase";
 import {
   IcAchBadge,
   IcAchBolt,
@@ -45,29 +43,6 @@ import {
 } from "./icons";
 
 // ─────────────────────────────────────────────────────────────────────────────
-const getFirebaseInstance = () => {
-  const config = {
-    apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
-    authDomain: "genro-b74de.firebaseapp.com",
-    projectId: "genro-b74de",
-    storageBucket: "genro-b74de.firebasestorage.app",
-    messagingSenderId: "311645846310",
-    appId: "1:311645846310:web:4a11cadf49825db1f55fe7",
-  };
-
-  try {
-    const app = getApps().length === 0 ? initializeApp(config) : getApp();
-    const db = getFirestore(app);
-    const auth = getAuth(app);
-    return { db, auth, enabled: true, appId: "gen-ron-kai-app-v1" };
-  } catch (e: any) {
-    // ✅ alertを出さずサイレントにオフラインモードへ（広告ブロッカー・厳格なWi-Fi対策）
-    // alertを出すとFirebase初期化前にReactがクラッシュして画面真っ白になる
-    console.warn("Firebase unavailable, running in offline mode:", e.message);
-    return { db: null, auth: null, enabled: false, appId: "local-only" };
-  }
-};
-const fb = getFirebaseInstance();
 
 // --- 定数 ---
 // レベルに必要な累積EXP (非線形: レベルが上がるほど必要EXPが増加)
