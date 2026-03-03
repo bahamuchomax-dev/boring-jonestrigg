@@ -1506,8 +1506,6 @@ const WORD_CATEGORIES = [
 ];
 
 // 150語の単語リスト (各ステージ7〜8単語)
-const db = fb.db;
-const auth = fb.auth;
 export {
   db,
   auth,
