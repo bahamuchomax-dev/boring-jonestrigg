@@ -30,6 +30,10 @@ import {
   increment,
   arrayUnion,
 } from "firebase/firestore";
+import { db, auth } from "./firebase";
+
+// ✅ 【重要】大量にある「fb.db」や「fb.auth」をそのまま動かすための魔法の1行
+const fb = { db, auth };
 
 // ── Imports from split files ──
 import {
@@ -193,7 +197,6 @@ import {
 } from "./icons";
 import {
   getFirebaseInstance,
-  fb,
   calcExpForLevel,
   calcExpProgress,
   SHOP_PETS,
@@ -2996,7 +2999,8 @@ export default function App() {
     const nonEnglishCats = ["化学", "漢字", "古文"];
     const cat = catOverride || opt.category || gameCategory;
     if (nonEnglishCats.includes(cat)) {
-      const colonIdx = ja.indexOf("：");
+      // ja が存在するか確認してから indexOf を実行する（なければ -1 を返す）
+      const colonIdx = ja ? ja.indexOf(": ") : -1;
       return colonIdx !== -1 ? ja.slice(colonIdx + 1).trim() : ja;
     }
     return ja; // 英単語は問題文のみ、選択肢は日本語訳のみ
@@ -16150,8 +16154,9 @@ export default function App() {
                                         }}
                                       >
                                         {lanePets.map((pet, idx) => {
-                                          const globalIdx =
-                                            ownedPets.indexOf(pet);
+                                          const globalIdx = ownedPets
+                                            ? ownedPets.indexOf(pet)
+                                            : 0;
                                           const pd = getPetData(pet.id);
                                           const affection = pd.affection || 0;
                                           const petLv =
