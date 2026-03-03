@@ -1,6 +1,7 @@
 /* eslint-disable */
 // @ts-nocheck
-
+import { collection, getDocs, addDoc, query, where } from "firebase/firestore"; // Firebaseの関数を読み込む
+import { db } from "./constants"; // 別のファイルで定義した db を連れてくる
 const DEFAULT_VOCAB = [
   // Stage 1
   {
@@ -2416,7 +2417,6 @@ const DEFAULT_VOCAB = [
     stage: 35,
     category: "英単語",
   },
-
 ];
 
 // ─── 熟語リスト (各ステージ8語) ──────────────────────────────────────────────
@@ -7168,5 +7168,5 @@ export {
   DEFAULT_VOCAB_IDIOM,
   DEFAULT_VOCAB_KANJI,
   DEFAULT_VOCAB_CHEM,
-  DEFAULT_VOCAB_KOBUN
+  DEFAULT_VOCAB_KOBUN,
 };
