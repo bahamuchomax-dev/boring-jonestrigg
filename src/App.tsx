@@ -34,7 +34,7 @@ import { db, auth } from "./firebase";
 
 // ✅ 【重要】大量にある「fb.db」や「fb.auth」をそのまま動かすための魔法の1行
 import { appId } from "./firebase"; // firebase.tsでappIdをexportしている場合
-const fb = { db, auth, appId };
+const fb = { db, auth, appId: "gen-ron-kai-app-v1", enabled: true };
 
 // ── Imports from split files ──
 import {
