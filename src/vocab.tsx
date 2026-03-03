@@ -1,7 +1,7 @@
 /* eslint-disable */
 // @ts-nocheck
-import { collection, getDocs, addDoc, query, where } from "firebase/firestore"; // Firebaseの関数を読み込む
-import { db } from "./constants"; // 別のファイルで定義した db を連れてくる
+import { collection, getDocs, addDoc, query, where } from "firebase/firestore";
+import { db } from "./firebase"; // 👈 "./constants" から "./firebase" に変更
 const DEFAULT_VOCAB = [
   // Stage 1
   {
