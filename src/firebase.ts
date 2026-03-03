@@ -16,3 +16,5 @@ console.log("設定されているAPIキー:", config.apiKey);
 const app = getApps().length === 0 ? initializeApp(config) : getApp();
 export const db = getFirestore(app);
 export const auth = getAuth(app);
+export const appId = "gen-ron-kai-app-v1";
+console.log("appId:", app.options.appId);
