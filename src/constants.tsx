@@ -1509,8 +1509,6 @@ const WORD_CATEGORIES = [
 const db = fb.db;
 const auth = fb.auth;
 export {
-  getFirebaseInstance,
-  fb,
   db,
   auth,
   calcExpForLevel,
