@@ -1531,8 +1531,8 @@ const WORD_CATEGORIES = [
 ];
 
 // 150語の単語リスト (各ステージ7〜8単語)
-export const db = fb.db;
-export const auth = fb.auth;
+export db = fb.db;
+export auth = fb.auth;
 export {
   getFirebaseInstance,
   fb,
