@@ -1,7 +1,21 @@
 /* eslint-disable */
 // @ts-nocheck
 import { collection, getDocs, addDoc, query, where } from "firebase/firestore";
-import { db } from "./firebase"; // 👈 "./constants" から "./firebase" に変更
+import { db } from "./firebase";
+
+// ✅ 1. データを取得する処理を「async関数」として定義する
+export const fetchUsers = async () => {
+  try {
+    const querySnapshot = await getDocs(collection(db, "users"));
+    querySnapshot.forEach((doc) => {
+      console.log("ユーザーデータ:", doc.id, " => ", doc.data());
+    });
+  } catch (error) {
+    console.error("データ取得エラー:", error);
+  }
+};
+
+// 実行したい場所で fetchUsers() を呼ぶ
 const DEFAULT_VOCAB = [
   // Stage 1
   {
