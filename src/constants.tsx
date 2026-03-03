@@ -4,12 +4,50 @@ import React from "react";
 import { initializeApp, getApps, getApp } from "firebase/app";
 import { getAuth } from "firebase/auth";
 import { getFirestore } from "firebase/firestore";
-import { IcAchBadge, IcAchBolt, IcAchBook, IcAchBooks, IcAchBrain, IcAchCat, IcAchChart, IcAchCoin, IcAchCrown, IcAchFire, IcAchFirst, IcAchFleur, IcAchGalaxy, IcAchGame, IcAchGem, IcAchGrad, IcAchJoystick, IcAchMedal, IcAchMuscle, IcAchPaw, IcAchPencil, IcAchPerfect, IcAchRocket, IcAchScoreGold, IcAchScoreSilver, IcAchSentence, IcAchStar, IcAchTrophy, IcAchUnicorn, IcAchVolcano, IcAchWave, IcBgCandy, IcBgForest, IcBgNight, IcBgOcean, IcBgSnow, IcBgSunset } from "./icons";
+import {
+  IcAchBadge,
+  IcAchBolt,
+  IcAchBook,
+  IcAchBooks,
+  IcAchBrain,
+  IcAchCat,
+  IcAchChart,
+  IcAchCoin,
+  IcAchCrown,
+  IcAchFire,
+  IcAchFirst,
+  IcAchFleur,
+  IcAchGalaxy,
+  IcAchGame,
+  IcAchGem,
+  IcAchGrad,
+  IcAchJoystick,
+  IcAchMedal,
+  IcAchMuscle,
+  IcAchPaw,
+  IcAchPencil,
+  IcAchPerfect,
+  IcAchRocket,
+  IcAchScoreGold,
+  IcAchScoreSilver,
+  IcAchSentence,
+  IcAchStar,
+  IcAchTrophy,
+  IcAchUnicorn,
+  IcAchVolcano,
+  IcAchWave,
+  IcBgCandy,
+  IcBgForest,
+  IcBgNight,
+  IcBgOcean,
+  IcBgSnow,
+  IcBgSunset,
+} from "./icons";
 
 // ─────────────────────────────────────────────────────────────────────────────
 const getFirebaseInstance = () => {
   const config = {
-    apiKey: "AIzaSyDRxf41aviV1nAPzdpfua-oD6uCbZocdVc",
+    apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
     authDomain: "genro-b74de.firebaseapp.com",
     projectId: "genro-b74de",
     storageBucket: "genro-b74de.firebasestorage.app",
@@ -1539,5 +1577,5 @@ export {
   IcCatKobun,
   CATEGORY_ICONS,
   WORD_CATEGORIES,
-  calcLevel
+  calcLevel,
 };
